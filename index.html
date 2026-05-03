@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logarithms — Interactive Classroom</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0a0a0f;--s1:#111118;--s2:#1a1a24;--s3:#22222f;--br:rgba(255,255,255,0.08);--br2:rgba(255,255,255,0.14);--t:#f0efe8;--mt:#888899;--a:#c8a96e;--a2:#7eb8f7;--a3:#7edfa0;--re:#f07070;--serif:'DM Serif Display',serif;--sans:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;--r:12px;--rl:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden}
+
+/* SKIP LINK */
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:9999;background:var(--a);color:var(--bg);padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none}
+.skip-link:focus{left:50%;transform:translateX(-50%)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--br);height:auto;min-height:56px}
+.nav-top{display:flex;align-items:center;padding:0 1.5rem;height:56px;gap:1rem}
+.nav-brand{font-family:var(--serif);font-size:20px;color:var(--a);white-space:nowrap;flex-shrink:0}
+.nav-steps{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-steps::-webkit-scrollbar{display:none}
+.ns{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.05em;cursor:pointer;color:var(--mt);transition:all .2s;white-space:nowrap;border:none;background:none;font-family:var(--sans);text-transform:uppercase}
+.ns:hover{color:var(--t);background:var(--s2)}
+.ns.active{color:var(--a);background:rgba(200,169,110,.12)}
+.progress-bar{height:2px;background:var(--s3);position:relative}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));width:0%;transition:width .3s}
+
+/* TEACHER TOGGLE NAV BTN */
+#teacherToggle{padding:5px 11px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;color:var(--a);border:1px solid rgba(200,169,110,.3);background:rgba(200,169,110,.08);font-family:var(--sans);transition:all .2s;white-space:nowrap;flex-shrink:0}
+#teacherToggle:hover{background:rgba(200,169,110,.18)}
+#teacherToggle[aria-pressed="true"]{background:rgba(200,169,110,.22);border-color:var(--a)}
+
+/* TEACHER BAR */
+.teacher-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(10,10,15,0.98);border-top:1px solid rgba(200,169,110,.3);padding:.6rem 1.2rem;display:none;align-items:center;gap:.6rem;flex-wrap:wrap;backdrop-filter:blur(16px)}
+.teacher-bar.active{display:flex}
+.tm-btn{background:var(--s2);border:1px solid var(--br2);border-radius:8px;padding:6px 14px;color:var(--t);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .2s;white-space:nowrap}
+.tm-btn:hover{border-color:var(--a);color:var(--a)}
+.tm-btn:disabled{opacity:.35;cursor:default}
+.tm-btn.primary{background:var(--a);color:var(--bg);border-color:var(--a)}
+.tm-btn.primary:hover{opacity:.88}
+.tm-label{font-size:12px;color:var(--a);font-weight:700;flex:1;text-align:center;font-family:var(--mono);letter-spacing:.04em}
+.tm-kbd{font-size:10px;color:var(--mt);letter-spacing:.02em;display:none}
+@media(min-width:700px){.tm-kbd{display:block}}
+
+/* TEACHER MODE SECTIONS */
+body.teacher-mode section{transition:opacity .35s,filter .35s,box-shadow .35s}
+body.teacher-mode section.tm-inactive{opacity:.18;filter:brightness(.5);pointer-events:none}
+body.teacher-mode section.tm-active{opacity:1;filter:none;box-shadow:0 0 0 2px rgba(200,169,110,.25) inset}
+body.teacher-mode .teacher-bar{display:flex}
+.tm-hidden{opacity:0!important;transform:translateY(12px)!important;pointer-events:none}
+.tm-revealed{transition:opacity .4s ease,transform .4s ease!important;opacity:1!important;transform:none!important}
+
+/* PROJECTOR MODE */
+body.projector-mode{font-size:19px}
+body.projector-mode h1{font-size:clamp(44px,6vw,72px)}
+body.projector-mode h2{font-size:clamp(34px,5vw,58px)}
+body.projector-mode .lead{font-size:18px}
+body.projector-mode .nav-steps{display:none}
+body.projector-mode footer{display:none}
+body.projector-mode .container{max-width:820px}
+body.projector-mode .ns{display:none}
+
+/* SECTIONS */
+section{min-height:100vh;padding:90px 0 80px;display:flex;flex-direction:column;justify-content:center}
+body.teacher-mode section{padding-bottom:110px}
+.container{max-width:920px;margin:0 auto;padding:0 2rem;width:100%}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;padding:4px 14px;margin-bottom:1.25rem}
+.tag-gold{color:var(--a);background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.25)}
+.tag-blue{color:var(--a2);background:rgba(126,184,247,.1);border:1px solid rgba(126,184,247,.25)}
+.tag-green{color:var(--a3);background:rgba(126,223,160,.1);border:1px solid rgba(126,223,160,.25)}
+.tag-red{color:var(--re);background:rgba(240,112,112,.1);border:1px solid rgba(240,112,112,.25)}
+
+/* TYPOGRAPHY */
+h1{font-family:var(--serif);font-size:clamp(34px,5vw,58px);line-height:1.15;margin-bottom:.75rem}
+h2{font-family:var(--serif);font-size:clamp(26px,4vw,42px);line-height:1.2;margin-bottom:.75rem}
+h3{font-size:17px;font-weight:600;margin-bottom:.5rem}
+.lead{font-size:16px;color:var(--mt);line-height:1.75;max-width:640px;margin-bottom:1.5rem}
+.ca{color:var(--a)}.cb{color:var(--a2)}.cg{color:var(--a3)}.cr{color:var(--re)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.5rem}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:1.5rem}
+
+/* INTERACTIVE BOX */
+.ibox{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+
+/* SLIDERS */
+.srow{display:flex;align-items:center;gap:14px;margin-bottom:1rem}
+.srow label{font-size:13px;color:var(--mt);min-width:110px}
+input[type=range]{flex:1;height:4px;background:var(--s3);border-radius:2px;appearance:none;cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--a);cursor:pointer;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.sval{font-family:var(--mono);font-size:14px;color:var(--a);min-width:38px;text-align:right}
+
+/* MULT DISPLAY */
+.mblocks{display:flex;flex-wrap:wrap;gap:5px;min-height:40px;align-items:center;margin-bottom:1rem}
+.mb{background:rgba(126,184,247,.15);border:1px solid rgba(126,184,247,.3);color:var(--a2);border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:11px;animation:pop .15s ease}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.rbig{font-family:var(--serif);font-size:40px;color:var(--a3)}
+.rrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+
+/* DEFINITION BOX */
+.defbox{background:var(--s2);border:1px solid rgba(200,169,110,.3);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.defeq{font-family:var(--serif);font-size:clamp(20px,4vw,36px);color:var(--a);text-align:center;margin:1rem 0;line-height:1.5}
+
+/* PROP CARDS */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.25rem 0}
+@media(max-width:580px){.pgrid{grid-template-columns:1fr}}
+.pc{background:var(--s2);border:1px solid var(--br);border-radius:var(--r);padding:1rem 1.2rem;cursor:pointer;transition:border-color .2s}
+.pc:hover{border-color:var(--br2)}
+.pc.open{border-color:rgba(200,169,110,.4)}
+.pt{font-family:var(--mono);font-size:14px;color:var(--a);margin-bottom:3px}
+.pn{font-size:12px;color:var(--mt)}
+.pp{display:none;margin-top:10px;font-size:13px;color:var(--mt);line-height:1.65;padding-top:10px;border-top:1px solid var(--br)}
+.pc.open .pp{display:block}
+
+/* CRISIS */
+.crisisbox{background:linear-gradient(135deg,rgba(240,112,112,.08),rgba(240,112,112,.03));border:1px solid rgba(240,112,112,.2);border-radius:var(--rl);padding:2rem;margin:1.5rem 0;text-align:center}
+.ceq{font-family:var(--mono);font-size:clamp(16px,3vw,26px);color:var(--re);margin:1rem 0;letter-spacing:.05em}
+
+/* INSIGHTS */
+.insight{border-left:3px solid var(--a3);background:rgba(126,223,160,.06);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.25rem;margin:1.25rem 0;font-size:14px;color:#c8e8d0;line-height:1.65}
+.warn{border-left:3px solid var(--re);background:rgba(240,112,112,.06);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.25rem;margin:1.25rem 0;font-size:14px;color:#f8c0c0;line-height:1.65}
+
+/* LOG EXPLORER */
+.expgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:1.25rem}
+@media(max-width:560px){.expgrid{grid-template-columns:1fr}}
+.eqflow{display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center}
+.eqcard{background:var(--s2);border:1px solid var(--br2);border-radius:var(--r);padding:.9rem 1.25rem;text-align:center;width:100%}
+.eqlabel{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.eqval{font-family:var(--mono);font-size:17px}
+
+/* CONSTRAINT */
+.cgd{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.75rem 0}
+@media(max-width:520px){.cgd{grid-template-columns:1fr}}
+.cok{background:rgba(126,223,160,.08);border:1px solid rgba(126,223,160,.22);border-radius:var(--r);padding:.85rem;text-align:center;font-size:13px;color:#a8e8c0;line-height:1.6}
+.cbad{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.22);border-radius:var(--r);padding:.85rem;text-align:center;font-size:13px;color:#f09090;line-height:1.6}
+.cval{font-family:var(--mono);font-size:15px;font-weight:600;display:block;margin-bottom:5px}
+
+/* GRAPHS */
+.gsection{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.gcontrols{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;align-items:center}
+.gpresets{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center}
+.gpreset-lbl{font-size:11px;color:var(--mt);margin-right:4px}
+.gpreset{padding:4px 11px;border-radius:14px;font-size:11px;font-weight:600;border:1px solid var(--br2);background:transparent;color:var(--mt);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.gpreset:hover{border-color:var(--a);color:var(--a)}
+.gtog{padding:6px 15px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--br2);background:transparent;color:var(--mt);cursor:pointer;transition:all .2s;font-family:var(--sans)}
+.gfbtn{padding:6px 12px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid var(--br2);background:transparent;color:var(--t);cursor:pointer;transition:all .2s;font-family:var(--sans)}
+.gfbtn:hover{border-color:var(--a);color:var(--a)}
+.gtog.on{background:rgba(126,184,247,.15);border-color:rgba(126,184,247,.4);color:var(--a2)}
+.gtog.on2{background:rgba(126,223,160,.15);border-color:rgba(126,223,160,.4);color:var(--a3)}
+.gtog.on3{background:rgba(200,169,110,.15);border-color:rgba(200,169,110,.4);color:var(--a)}
+.gtog.on4{background:rgba(240,112,112,.12);border-color:rgba(240,112,112,.3);color:var(--re)}
+.gfacts{display:flex;flex-wrap:wrap;gap:10px;margin-top:1rem}
+.gfact{background:var(--s2);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--mt)}
+.gfact span{color:var(--t);font-weight:500}
+
+/* TWO GRAPH GRID */
+.twog{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:1rem}
+@media(max-width:600px){.twog{grid-template-columns:1fr}}
+.gcanvas-wrap{position:relative;height:320px;width:100%}
+
+/* LAWS */
+.lawcard{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.lawcard:hover{border-color:var(--br2)}
+.lawcard.open{border-color:rgba(126,184,247,.35)}
+.lhdr{display:flex;align-items:center;gap:10px}
+.lnum{width:26px;height:26px;border-radius:50%;background:rgba(126,184,247,.15);border:1px solid rgba(126,184,247,.3);color:var(--a2);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ltitle{font-size:15px;font-weight:600;flex:1}
+.lform{font-family:var(--mono);font-size:13px;color:var(--a);margin-left:auto;padding:3px 10px;background:rgba(200,169,110,.1);border-radius:6px}
+.lchev{color:var(--mt);transition:transform .2s;font-size:11px;margin-left:6px}
+.lawcard.open .lchev{transform:rotate(180deg)}
+.lbody{display:none;margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--br)}
+.lawcard.open .lbody{display:block}
+.psteps{display:flex;flex-direction:column;gap:8px}
+.pstep{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.psn{min-width:20px;height:20px;border-radius:50%;background:var(--s3);color:var(--mt);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.peq{font-family:var(--mono);color:var(--a2)}
+.pwhy{color:var(--mt);font-size:12px;margin-top:2px}
+.exbox{background:var(--s3);border-radius:9px;padding:.85rem;margin-top:.85rem}
+.exlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mt);margin-bottom:5px}
+.exrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--mono);font-size:13px}
+.exeq{color:var(--a3)}
+
+/* PROBLEMS */
+.prob{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin-bottom:14px}
+.prob-q{font-size:15px;font-weight:600;margin-bottom:.75rem;line-height:1.6}
+.prob-tag{display:inline-flex;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:12px;margin-bottom:.5rem}
+.prob-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.8rem}
+.prob-btn{background:transparent;border:1px solid var(--br2);border-radius:8px;padding:7px 14px;font-size:13px;color:var(--mt);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.prob-btn:hover{border-color:var(--a2);color:var(--a2)}
+.prob-hint{display:none;margin:.65rem 0;padding:.7rem .85rem;background:rgba(126,184,247,.08);border:1px solid rgba(126,184,247,.22);border-radius:8px;color:#bdd7f5;font-size:13px}
+.prob-hint.show{display:block}
+.prob-steps{display:flex;flex-direction:column;gap:10px;margin:.75rem 0}
+.prob-step{padding:.55rem .7rem;border-radius:7px;background:rgba(126,223,160,.08);border:1px solid rgba(126,223,160,.2);font-family:var(--mono);font-size:13px;color:var(--a3)}
+.prob-answer{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.8rem}
+.prob-answer input{background:var(--s3);border:1px solid var(--br2);border-radius:8px;padding:8px 11px;color:var(--t);font-family:var(--mono);font-size:13px;outline:none;min-width:180px;transition:border-color .2s}
+.prob-answer input:focus{border-color:rgba(200,169,110,.5)}
+.prob-feedback{font-size:13px;min-height:20px}
+.prob-feedback.ok{color:var(--a3)}
+.prob-feedback.bad{color:var(--re)}
+.prob-topbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:1rem 0 1.15rem}
+.prob-filter{background:var(--s2);color:var(--t);border:1px solid var(--br2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:var(--sans)}
+.prob-random{margin-left:auto}
+@media(max-width:520px){.prob-random{margin-left:0}}
+.ptag-easy{background:rgba(126,223,160,.12);color:var(--a3);border:1px solid rgba(126,223,160,.25)}
+.ptag-med{background:rgba(200,169,110,.12);color:var(--a);border:1px solid rgba(200,169,110,.25)}
+.ptag-hard{background:rgba(240,112,112,.12);color:var(--re);border:1px solid rgba(240,112,112,.25)}
+.ptag-jee{background:rgba(126,184,247,.12);color:var(--a2);border:1px solid rgba(126,184,247,.25)}
+.sol-btn{background:transparent;border:1px solid var(--br2);border-radius:8px;padding:7px 16px;font-size:13px;color:var(--mt);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.sol-btn:hover{border-color:var(--a2);color:var(--a2)}
+.sol-body{display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br)}
+.sol-body.show{display:block}
+.sol-step{display:flex;gap:10px;margin-bottom:8px;font-size:14px}
+.ssn{min-width:20px;height:20px;border-radius:50%;background:rgba(200,169,110,.15);color:var(--a);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sseq{font-family:var(--mono);color:var(--a3);font-size:13px}
+.ssw{color:var(--mt);font-size:12px;margin-top:2px}
+.final-ans{background:rgba(126,223,160,.1);border:1px solid rgba(126,223,160,.3);border-radius:8px;padding:.6rem 1rem;font-family:var(--mono);font-size:14px;color:var(--a3);margin-top:.75rem;display:inline-block}
+
+/* PRACTICE MODE BTN */
+.practice-mode-btn{background:transparent;border:1px solid rgba(126,184,247,.35);border-radius:8px;padding:7px 14px;font-size:13px;color:var(--a2);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.practice-mode-btn:hover{background:rgba(126,184,247,.08)}
+.practice-mode-btn.active{background:rgba(126,184,247,.15);border-color:var(--a2)}
+
+/* MASTERY BADGE */
+.mastery-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:10px}
+.mb-solved{background:rgba(126,223,160,.15);color:var(--a3);border:1px solid rgba(126,223,160,.3)}
+.mb-unsolved{background:rgba(136,136,153,.1);color:var(--mt);border:1px solid var(--br)}
+
+/* VERIFIER */
+.ver{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin:1.5rem 0}
+.vgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:.75rem 0}
+@media(max-width:520px){.vgrid{grid-template-columns:1fr}}
+.vwrap{display:flex;flex-direction:column;gap:4px}
+.vwrap label{font-size:12px;color:var(--mt)}
+input[type=number]{background:var(--s3);border:1px solid var(--br2);border-radius:8px;padding:8px 11px;color:var(--t);font-family:var(--mono);font-size:13px;outline:none;width:100%}
+input[type=number]:focus{border-color:rgba(200,169,110,.5)}
+.vres{background:var(--s3);border-radius:9px;padding:.9rem;font-family:var(--mono);font-size:12px;line-height:2;white-space:pre-line}
+.vok{color:var(--a3)}.ver2{color:var(--re)}
+
+/* QUIZ */
+.qbox{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.qtxt{font-family:var(--serif);font-size:21px;margin-bottom:1.25rem;line-height:1.4}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:.75rem}
+@media(max-width:480px){.qopts{grid-template-columns:1fr}}
+.qo{background:var(--s2);border:1px solid var(--br2);border-radius:9px;padding:11px 15px;font-size:14px;cursor:pointer;transition:all .15s;text-align:left;color:var(--t);font-family:var(--sans)}
+.qo:hover{background:var(--s3)}
+.qo.correct{background:rgba(126,223,160,.1);border-color:rgba(126,223,160,.4);color:var(--a3)}
+.qo.wrong{background:rgba(240,112,112,.1);border-color:rgba(240,112,112,.3);color:var(--re)}
+.qfb{font-size:13px;color:var(--mt);padding:.5rem 0;min-height:20px;line-height:1.6}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
+.qprog{font-size:12px;color:var(--mt)}
+.btn{background:var(--a);color:var(--bg);font-weight:600;font-size:13px;padding:9px 22px;border-radius:9px;border:none;cursor:pointer;font-family:var(--sans);transition:opacity .2s}
+.btn:hover{opacity:.88}
+.btng{background:transparent;color:var(--mt);font-size:13px;padding:9px 16px;border-radius:9px;border:1px solid var(--br2);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.btng:hover{color:var(--t)}
+
+/* TIMER */
+.quiz-timer{display:none;align-items:center;gap:.6rem;margin-bottom:.75rem;font-family:var(--mono);font-size:13px;color:var(--mt);padding:.5rem .75rem;background:var(--s2);border-radius:8px;border:1px solid var(--br)}
+.timer-bar-wrap{flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.timer-bar{height:100%;background:var(--a2);border-radius:3px;transition:width .95s linear;width:100%}
+.timer-bar.warn{background:var(--re)}
+.timer-val{min-width:24px;text-align:right;font-weight:700;color:var(--t)}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin:1rem 0}
+.analytics-stat{background:var(--s2);border-radius:var(--r);padding:1rem;text-align:center}
+.analytics-num{font-family:var(--serif);font-size:30px;color:var(--a);line-height:1.1}
+.analytics-lbl{font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
+
+/* MASTERY */
+.mastery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:1.25rem 0}
+.mastery-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.25rem;text-align:center}
+.mastery-ring{width:72px;height:72px;margin:0 auto .75rem;position:relative}
+.mastery-ring svg{transform:rotate(-90deg)}
+.mastery-ring circle{fill:none;stroke-width:6;transition:stroke-dashoffset .6s ease}
+.mastery-ring .bg{stroke:var(--s3)}
+.mastery-ring .fg{stroke-linecap:round}
+.mastery-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--t)}
+.mastery-level{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.mastery-count{font-size:11px;color:var(--mt)}
+.mastery-total{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.2rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.mastery-bar{flex:1;height:8px;background:var(--s3);border-radius:4px;min-width:120px;overflow:hidden}
+.mastery-bar-fill{height:100%;background:linear-gradient(90deg,var(--a3),var(--a2));border-radius:4px;transition:width .6s ease}
+.mastery-streak{background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.25);border-radius:var(--r);padding:.45rem 1rem;font-size:12px;color:var(--a);white-space:nowrap}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--br);margin:0}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:translateY(0)}
+
+/* FOOTER */
+footer{padding:2rem;text-align:center;font-size:12px;color:var(--mt);border-top:1px solid var(--br)}
+
+/* ACCESSIBILITY */
+:focus-visible{outline:2px solid var(--a2);outline-offset:2px}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.container{max-width:860px;padding:0 1.5rem}.nav-top{padding:0 1rem}}
+@media(max-width:768px){
+  section{min-height:auto;padding:84px 0 64px}
+  .container{padding:0 1rem}
+  .gcontrols{gap:8px}
+  .gcontrols .srow{flex-basis:100%;min-width:100%}
+  .gtog,.gfbtn{padding:8px 12px;font-size:12px}
+  .gcanvas-wrap{height:290px}
+  .qbox,.ibox,.gsection,.defbox{padding:1.2rem}
+  .prob-answer input{min-width:140px}
+}
+@media(max-width:480px){
+  nav{min-height:52px}
+  .nav-top{height:52px;padding:0 .7rem;gap:.5rem}
+  .nav-brand{font-size:17px}
+  .ns{padding:6px 10px;font-size:10px}
+  h1{font-size:32px}h2{font-size:28px}
+  .lead{font-size:15px;line-height:1.6}
+  .gcanvas-wrap{height:250px}
+  .prob-topbar{align-items:stretch}
+  .prob-filter,.prob-btn,.sol-btn,.btn,.btng{width:100%}
+  .prob-random{margin-left:0}
+  .prob-answer{flex-direction:column;align-items:stretch}
+  .prob-answer input{width:100%}
+  .qtxt{font-size:19px}
+  .gfacts{gap:8px}.gfact{width:100%}
+  .analytics-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:360px){.container{padding:0 .75rem}section{padding:78px 0 56px}.tag{font-size:10px;padding:3px 10px}.gcanvas-wrap{height:220px}.eqval{font-size:15px}}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<nav id="mainNav" role="navigation" aria-label="Course sections">
+  <div class="nav-top">
+    <div class="nav-brand" aria-label="Logarithms Interactive Classroom">log<sub>b</sub>(x)</div>
+    <div class="nav-steps" id="navSteps" role="list">
+      <button class="ns active" data-section="why" onclick="goTo('why')" role="listitem">Why</button>
+      <button class="ns" data-section="what" onclick="goTo('what')" role="listitem">The Problem</button>
+      <button class="ns" data-section="exponents" onclick="goTo('exponents')" role="listitem">Exponents</button>
+      <button class="ns" data-section="expgraph" onclick="goTo('expgraph')" role="listitem">Exp Graphs</button>
+      <button class="ns" data-section="crisis" onclick="goTo('crisis')" role="listitem">The Crisis</button>
+      <button class="ns" data-section="logdef" onclick="goTo('logdef')" role="listitem">Log Definition</button>
+      <button class="ns" data-section="constraints" onclick="goTo('constraints')" role="listitem">Constraints</button>
+      <button class="ns" data-section="loggraph" onclick="goTo('loggraph')" role="listitem">Log Graphs</button>
+      <button class="ns" data-section="laws" onclick="goTo('laws')" role="listitem">Laws + Proofs</button>
+      <button class="ns" data-section="problems" onclick="goTo('problems')" role="listitem">Problems</button>
+      <button class="ns" data-section="mastery" onclick="goTo('mastery')" role="listitem">Mastery</button>
+      <button class="ns" data-section="quiz" onclick="goTo('quiz')" role="listitem">Quiz</button>
+    </div>
+    <button id="teacherToggle" aria-pressed="false" title="Toggle Teacher Mode (Shift+T)">🎓 Teach</button>
+  </div>
+  <div class="progress-bar" role="progressbar" aria-label="Course progress"><div class="progress-fill" id="progFill"></div></div>
+</nav>
+
+<!-- TEACHER CONTROL BAR -->
+<div id="teacherBar" class="teacher-bar" role="toolbar" aria-label="Teacher controls" aria-hidden="true">
+  <button class="tm-btn" id="tmPrev" aria-label="Previous section">← Prev</button>
+  <span class="tm-label" id="tmLabel" aria-live="polite">Why (1/12)</span>
+  <button class="tm-btn primary" id="tmNext" aria-label="Next section">Next →</button>
+  <button class="tm-btn" id="tmReveal" aria-label="Reveal next element">Reveal</button>
+  <button class="tm-btn" id="tmProjector" aria-label="Toggle projector mode (P)">⬛ Projector</button>
+  <span class="tm-kbd" aria-hidden="true">← → navigate &nbsp;·&nbsp; P projector &nbsp;·&nbsp; R reveal &nbsp;·&nbsp; Esc exit</span>
+  <button class="tm-btn" id="tmExit" aria-label="Exit teacher mode" style="margin-left:auto">✕ Exit</button>
+</div>
+
+<main id="main-content">
+
+<!-- WHY -->
+<section id="why" aria-label="Why logarithms exist">
+<div class="container">
+  <div class="tag tag-gold">Act I — Why</div>
+  <h1>Why do logarithms<br><em style="color:var(--a)">even exist?</em></h1>
+  <p class="lead">Every great idea in mathematics was born to solve a real problem. Before we learn logarithms, we need to feel the problem that made them necessary.</p>
+  <div class="cgrid rv">
+    <div class="card"><h3>You know multiplication</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">3 × 4 = 12. Simple, clean. Nothing scary here.</p></div>
+    <div class="card"><h3>Repeated multiplication?</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">2 × 2 × 2 × 2 × 2 = 32. Fine for small numbers. Writing it out takes space.</p></div>
+    <div class="card"><h3>What about 10,000 times?</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">Writing 2 multiplied by itself <strong style="color:var(--a)">10,000 times</strong> is literally impossible on paper. There has to be a shortcut.</p></div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- WHAT -->
+<section id="what" aria-label="Feel the pain of repeated multiplication">
+<div class="container">
+  <div class="tag tag-gold">Act I continued — Feel the Pain</div>
+  <h2>Try it. Feel why<br>we needed a <span class="ca">shortcut</span>.</h2>
+  <p class="lead">Drag the slider. Watch the number of 2s grow. Notice when writing it out becomes completely impractical.</p>
+  <div class="ibox rv">
+    <div class="srow">
+      <label for="mSlider">Number of 2s</label>
+      <input type="range" min="1" max="25" value="4" step="1" id="mSlider" aria-label="Number of 2s to multiply">
+      <span class="sval" id="mVal" aria-live="polite">4</span>
+    </div>
+    <div class="mblocks" id="mBlocks" aria-live="polite"></div>
+    <div class="rrow" style="margin-top:.75rem">
+      <span style="font-size:14px;color:var(--mt)">Result:</span>
+      <span class="rbig" id="mResult" aria-live="polite">16</span>
+      <span style="font-size:14px;color:var(--mt)" id="mNote"></span>
+    </div>
+    <div class="warn" id="mPain" style="display:none">
+      <strong style="color:var(--re)">This is the problem.</strong> You're multiplying 2 by itself <span id="painN"></span> times. Even just writing the expression wastes an entire line of your notebook.<br>
+      <strong style="color:var(--t)">The mathematician's answer: exponents.</strong>
+    </div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- EXPONENTS -->
+<section id="exponents" aria-label="Exponents — the shortcut">
+<div class="container">
+  <div class="tag tag-blue">Act II — The Shortcut</div>
+  <h2>Exponents: one small<br>number does <span class="cb">all the work</span></h2>
+  <p class="lead">Instead of writing 2 × 2 × 2 × 2 × 2, write 2⁵. That tiny "5" carries the full information. Let's explore the function f(x) = aˣ.</p>
+
+  <div class="defbox rv">
+    <div style="text-align:center;font-size:11px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Definition — Exponential Function</div>
+    <div class="defeq">f(x) = aˣ &nbsp; where a &gt; 0, a ≠ 1</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:1.25rem;text-align:center">
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">BASE (a)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a)">a &gt; 0, a ≠ 1</div></div>
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">EXPONENT (x)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a2)">any real number</div></div>
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">f(x)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a3)">always positive</div></div>
+    </div>
+    <div style="margin-top:1.25rem;font-size:13px;color:var(--mt);text-align:center">
+      <strong style="color:var(--t)">Key difference from polynomial:</strong> In x³, x is the variable raised to a constant. In 2ˣ, x <em>is</em> the exponent — completely different beast.
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:.75rem">Properties of Exponents <span style="font-size:12px;color:var(--mt);font-weight:400">(tap to see proof)</span></h3>
+  <div class="pgrid rv">
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">xᵐ × xⁿ = xᵐ⁺ⁿ</div><div class="pn">Product rule</div><div class="pp">2³ × 2² = (2·2·2)·(2·2) = 2⁵. You're just counting total 2s: 3 + 2 = 5 ✓</div></div>
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">xᵐ/xⁿ = xᵐ⁻ⁿ (m &gt; n)</div><div class="pn">Quotient rule</div><div class="pp">2⁵/2² = 2·2·2·2·2 / 2·2. Two 2s cancel → 2³. So 5−2=3 ✓</div></div>
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">xᵐ/xⁿ = 1/xⁿ⁻ᵐ (m &lt; n)</div><div class="pn">Quotient rule (m&lt;n)</div><div class="pp">2²/2⁵ = 1/(2⁵⁻²) = 1/2³ = 1/8. Larger exponent wins ✓</div></div>
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">(xᵐ)ⁿ = xᵐⁿ</div><div class="pn">Power of power</div><div class="pp">(2³)² = 2³ × 2³ = 2⁶. Repeating group n times: 3×2=6 ✓</div></div>
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">x⁻ᵐ = 1/xᵐ</div><div class="pn">Negative exponent</div><div class="pp">x⁰ ÷ xᵐ = x⁻ᵐ. But x⁰=1, so x⁻ᵐ = 1/xᵐ ✓</div></div>
+    <div class="pc" onclick="this.classList.toggle('open')" role="button" tabindex="0" aria-expanded="false"><div class="pt">x⁰ = 1 (x ≠ 0)</div><div class="pn">Zero exponent</div><div class="pp">x¹ ÷ x¹ = x⁰. But any nonzero ÷ itself = 1. So x⁰=1 ✓</div></div>
+  </div>
+  <div class="insight rv">
+    <strong>Crucial observation:</strong> For a &gt; 1, f(x) = aˣ is a <em>strictly increasing</em> function — as x increases, aˣ always increases. This means it is one-to-one: every output is reached by exactly one input. This is exactly what allows us to define its inverse — the logarithm.
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- EXP GRAPHS -->
+<section id="expgraph" aria-label="Graph of exponential function">
+<div class="container">
+  <div class="tag tag-blue">Act II continued — The Graph</div>
+  <h2>Graph of f(x) = aˣ —<br><span class="cb">two very different shapes</span></h2>
+  <p class="lead">The behaviour changes completely depending on whether a &gt; 1 or 0 &lt; a &lt; 1. Adjust the base and observe.</p>
+
+  <div class="gsection rv">
+    <div class="gpresets">
+      <span class="gpreset-lbl" aria-hidden="true">Presets:</span>
+      <button class="gpreset" onclick="setEgPreset(2)" aria-label="Set base to 2">Base 2</button>
+      <button class="gpreset" onclick="setEgPreset(2.718)" aria-label="Set base to e">Base e</button>
+      <button class="gpreset" onclick="setEgPreset(10)" aria-label="Set base to 10">Base 10</button>
+      <button class="gpreset" onclick="setEgPreset(0.5)" aria-label="Set base to 0.5 (decay)">Decay (0.5)</button>
+    </div>
+    <div class="gcontrols">
+      <div class="srow" style="flex:1;min-width:200px;margin:0">
+        <label for="egBase" style="min-width:50px">Base (a)</label>
+        <input type="range" min="0.1" max="5" value="2" step="0.1" id="egBase" aria-label="Exponential base">
+        <span class="sval" id="egBaseVal" aria-live="polite">2.0</span>
+      </div>
+      <button class="gtog on" id="togEg1" onclick="toggleEg('b1')" aria-pressed="true">a &gt; 1 curve</button>
+      <button class="gtog on2" id="togEg2" onclick="toggleEg('b2')" aria-pressed="true">0 &lt; a &lt; 1 curve</button>
+      <button class="gtog on" id="togEgAsym" onclick="toggleEgAsym()" aria-pressed="true" title="Horizontal asymptote y=0">Asymptote</button>
+      <button class="gtog" id="togEgKP" onclick="toggleEgKP()" aria-pressed="false" title="Key point (0,1)">Key Point</button>
+      <button class="gfbtn" id="egFsBtn" onclick="toggleGraphFullscreen('egWrap','egFsBtn')" aria-label="Toggle fullscreen graph">Fullscreen</button>
+    </div>
+    <div class="gcanvas-wrap" id="egWrap"><canvas id="egChart" role="img" aria-label="Graph of exponential function aˣ"></canvas></div>
+    <div class="gfacts" id="egFacts" aria-label="Graph facts"></div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Key Properties from the graph (f(x) = 2ˣ example)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.75rem">
+      <div class="eqcard"><div class="eqlabel">f(0)</div><div class="eqval ca">2⁰ = 1 → passes through (0,1)</div></div>
+      <div class="eqcard"><div class="eqlabel">As x → +∞</div><div class="eqval cb">2ˣ → ∞ (grows without bound)</div></div>
+      <div class="eqcard"><div class="eqlabel">As x → −∞</div><div class="eqval cg">2ˣ → 0⁺ (approaches x-axis)</div></div>
+      <div class="eqcard"><div class="eqlabel">Horizontal asymptote</div><div class="eqval" style="color:var(--re)">y = 0 (never crosses)</div></div>
+    </div>
+    <div class="insight" style="margin-top:1rem"><strong>f(-1) = 2⁻¹ = 0.5 &nbsp; f(-2) = 2⁻² = 0.25 &nbsp; f(-3) = 2⁻³ = 0.125</strong><br>As x goes negative, aˣ gets closer to zero but never reaches it. The x-axis is a horizontal asymptote (y = 0).</div>
+    <div class="insight" style="margin-top:.5rem"><strong>Example:</strong> f(x) = 3ˣ → f(0)=1, f(1)=3, f(2)=9, f(-1)=3⁻¹=1/3≈0.333</div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- CRISIS -->
+<section id="crisis" aria-label="The inverse problem that logarithms solve">
+<div class="container">
+  <div class="tag tag-red">Act III — A New Problem Appears</div>
+  <h2>Exponents solved one thing.<br>But now <span class="cr">this</span> appeared.</h2>
+  <p class="lead">Exponents tell us: "given the power, find the result." But what about the reverse?</p>
+  <div class="crisisbox rv">
+    <div class="ceq">2¹⁰⁰⁰ + 2²⁰⁰⁰ = ?</div>
+    <div style="font-size:14px;color:var(--mt);margin-top:.5rem">Or: what power of 2 gives you 1,000,000?</div>
+    <div style="font-size:13px;color:var(--mt);margin-top:1rem;max-width:500px;margin-left:auto;margin-right:auto">Astronomers and navigators in 1600s had to multiply massive numbers by hand. They needed a way to turn multiplication into addition.</div>
+  </div>
+  <div class="cgrid rv">
+    <div class="card"><h3 class="cr">The Forward Problem</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">Given power x, find result aˣ. We can do this: 2¹⁰ = 1024.</p></div>
+    <div class="card"><h3 class="ca">The Inverse Problem</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">Given result N, find power x such that aˣ = N.<br><strong style="color:var(--a)">This is exactly what logarithms answer.</strong></p></div>
+  </div>
+  <div class="insight rv">John Napier (1614) invented logarithms to turn <strong>multiplication into addition</strong>: log(a × b) = log(a) + log(b). A genuine revolution in scientific calculation.</div>
+</div>
+</section>
+
+<hr>
+
+<!-- LOG DEF -->
+<section id="logdef" aria-label="Definition of logarithm">
+<div class="container">
+  <div class="tag tag-green">Act IV — The Answer</div>
+  <h2>Logarithm — the<br><span class="cg">exponent finder</span></h2>
+  <p class="lead">If 'a' is a positive real number other than 1, and aˣ = N, then we say x is the logarithm of N to the base 'a'. Written as log<sub>a</sub> N = x.</p>
+
+  <div class="defbox rv">
+    <div style="text-align:center;font-size:11px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">The Definition</div>
+    <div class="defeq">aˣ = N &nbsp;⟺&nbsp; log<sub>a</sub> N = x</div>
+    <p style="text-align:center;font-size:13px;color:var(--mt)">Same relationship, two different ways of reading it</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem">
+      <div style="background:var(--s3);border-radius:10px;padding:1rem;text-align:center">
+        <div style="font-size:11px;color:var(--mt);margin-bottom:6px">Exponent form (forward)</div>
+        <div style="font-family:var(--mono);color:var(--a2);font-size:16px">a<sup>x</sup> = N</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:4px">"raise a to power x, get N"</div>
+      </div>
+      <div style="background:var(--s3);border-radius:10px;padding:1rem;text-align:center">
+        <div style="font-size:11px;color:var(--mt);margin-bottom:6px">Log form (backward)</div>
+        <div style="font-family:var(--mono);color:var(--a3);font-size:16px">log<sub>a</sub>(N) = x</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:4px">"what power of a gives N?"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox rv">
+    <h3>Live Explorer — drag to see both forms simultaneously</h3>
+    <div class="srow" style="margin-top:.75rem">
+      <label for="lBase">Base (a)</label>
+      <input type="range" min="2" max="10" value="2" step="1" id="lBase" aria-label="Logarithm base">
+      <span class="sval" id="lBaseV" aria-live="polite">2</span>
+    </div>
+    <div class="srow">
+      <label for="lPow">Power (x)</label>
+      <input type="range" min="1" max="12" value="5" step="1" id="lPow" aria-label="Exponent power">
+      <span class="sval" id="lPowV" aria-live="polite">5</span>
+    </div>
+    <div class="expgrid">
+      <div class="eqflow">
+        <div class="eqcard"><div class="eqlabel">Exponent form</div><div class="eqval cb" id="expForm" aria-live="polite">2⁵ = 32</div></div>
+        <div style="font-size:18px;color:var(--mt)" aria-hidden="true">⇅ same statement</div>
+        <div class="eqcard"><div class="eqlabel">Log form</div><div class="eqval cg" id="logForm" aria-live="polite">log₂(32) = 5</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;justify-content:center">
+        <div class="eqcard"><div class="eqlabel">Reading it aloud</div><div style="font-size:14px;color:var(--mt);line-height:1.7" id="readAloud" aria-live="polite">"What power must I raise 2 to, to get 32? Answer: 5."</div></div>
+        <div class="eqcard"><div class="eqlabel">Important note</div><div style="font-size:13px;color:var(--a3)">The output of log CAN be negative (e.g. log₂(0.5) = −1), but the argument N must be &gt; 0.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Conversion Practice</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:.75rem">
+      <div class="eqcard"><div class="eqlabel">i. Convert</div><div class="eqval ca" style="font-size:13px">2⁵ = 32</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ log₂(32) = 5</div></div>
+      <div class="eqcard"><div class="eqlabel">ii. Convert</div><div class="eqval ca" style="font-size:13px">10⁻² = 0.01</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ log₁₀(0.01) = −2</div></div>
+      <div class="eqcard"><div class="eqlabel">iii. Convert</div><div class="eqval ca" style="font-size:13px">e⁰ = 1</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ logₑ(1) = 0</div></div>
+    </div>
+  </div>
+
+  <div class="insight rv"><strong>Logarithm is the inverse of the exponential.</strong> Domain and Range are swapped:<br>f(x) = aˣ: Domain = ℝ, Range = (0,∞) &nbsp;|&nbsp; f(x) = logₐ(x): Domain = (0,∞), Range = ℝ</div>
+</div>
+</section>
+
+<hr>
+
+<!-- CONSTRAINTS -->
+<section id="constraints" aria-label="Constraints on logarithms">
+<div class="container">
+  <div class="tag tag-gold">Act V — The Rules</div>
+  <h2>Not every log<br>is <span class="ca">valid</span></h2>
+  <p class="lead">Three constraints, each with a mathematical reason — not arbitrary rules to memorise.</p>
+
+  <div class="ibox rv">
+    <h3>Constraint 1: N &gt; 0 &nbsp;<span style="font-size:13px;color:var(--mt);font-weight:400">(argument must be positive)</span></h3>
+    <p style="font-size:14px;color:var(--mt);margin:.75rem 0">Can 2ˣ ever equal a negative number or zero? No. So log₂(−5) and log₂(0) are undefined.</p>
+    <div class="cgd">
+      <div class="cok"><span class="cval">log₂(8)</span>8 &gt; 0 ✓ = 3</div>
+      <div class="cok"><span class="cval">log₂(0.5)</span>0.5 &gt; 0 ✓ = −1</div>
+      <div class="cbad"><span class="cval">log₂(−4)</span>−4 &lt; 0 ✗ Undefined</div>
+    </div>
+    <div class="cbad" style="text-align:left;padding:1rem 1.25rem;border-radius:var(--r);margin-top:8px"><strong>log₂(0) = ?</strong> → asks: 2ˣ = 0. No real x satisfies this → Undefined.</div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Constraint 2: a &gt; 0 and a ≠ 1 &nbsp;<span style="font-size:13px;color:var(--mt);font-weight:400">(base restrictions)</span></h3>
+    <p style="font-size:14px;color:var(--mt);margin:.75rem 0">
+      <strong style="color:var(--t)">Why a ≠ 0?</strong> 0ˣ = 0 — not useful.<br>
+      <strong style="color:var(--t)">Why a ≠ 1?</strong> 1ˣ = 1 always — can never reach any other value.<br>
+      <strong style="color:var(--t)">Why not negative a?</strong> (−2)^(1/2) = √(−2) → complex. We stay in real numbers.
+    </p>
+    <div class="cgd">
+      <div class="cok"><span class="cval">log₂(x)</span>a=2&gt;0, ≠1 ✓</div>
+      <div class="cbad"><span class="cval">log₁(x)</span>a=1 ✗ 1ˣ=1 always</div>
+      <div class="cbad"><span class="cval">log₋₂(x)</span>a=−2 ✗ complex</div>
+    </div>
+  </div>
+
+  <div class="insight rv"><strong>Summary:</strong> log<sub>a</sub> N requires: &nbsp;<strong class="ca">N &gt; 0</strong> &nbsp;and&nbsp; <strong class="ca">a &gt; 0</strong> &nbsp;and&nbsp; <strong class="ca">a ≠ 1</strong>.</div>
+</div>
+</section>
+
+<hr>
+
+<!-- LOG GRAPHS -->
+<section id="loggraph" aria-label="Graph of logarithm function">
+<div class="container">
+  <div class="tag tag-green">Act VI — Visualising Log</div>
+  <h2>Graph of log<sub>a</sub>(x) —<br><span class="cg">two cases, one insight</span></h2>
+  <p class="lead">Just like the exponential, the shape of log<sub>a</sub>(x) depends on whether a &gt; 1 or 0 &lt; a &lt; 1.</p>
+
+  <div class="gsection rv">
+    <div class="gpresets">
+      <span class="gpreset-lbl" aria-hidden="true">Presets:</span>
+      <button class="gpreset" onclick="setLgPreset(2)" aria-label="log base 2">log₂</button>
+      <button class="gpreset" onclick="setLgPreset(10)" aria-label="log base 10">log₁₀</button>
+      <button class="gpreset" onclick="setLgPreset(2.718)" aria-label="natural log">ln (e)</button>
+      <button class="gpreset" onclick="setLgPreset(0.5)" aria-label="log base 0.5 (decreasing)">Decreasing</button>
+    </div>
+    <div class="gcontrols">
+      <div class="srow" style="flex:1;min-width:180px;margin:0">
+        <label for="lgBase" style="min-width:50px">Base (a)</label>
+        <input type="range" min="1.1" max="8" value="2" step="0.1" id="lgBase" aria-label="Logarithm base">
+        <span class="sval" id="lgBaseVal" aria-live="polite">2.0</span>
+      </div>
+      <button class="gtog on" id="togLg1" onclick="toggleLg('log1')" aria-pressed="true">a &gt; 1</button>
+      <button class="gtog on2" id="togLg2" onclick="toggleLg('log2')" aria-pressed="true">0 &lt; a &lt; 1</button>
+      <button class="gtog on3" id="togLgE" onclick="toggleLg('exp')" aria-pressed="true">bˣ (mirror)</button>
+      <button class="gtog" id="togLgM" onclick="toggleLg('mir')" aria-pressed="false">y = x</button>
+      <button class="gtog on" id="togLgAsym" onclick="toggleLgAsym()" aria-pressed="true" title="Vertical asymptote x=0">Asymptote</button>
+      <button class="gtog" id="togLgKP" onclick="toggleLgKP()" aria-pressed="false" title="Key points (1,0) and (a,1)">Key Points</button>
+      <button class="gfbtn" id="lgFsBtn" onclick="toggleGraphFullscreen('lgWrap','lgFsBtn')" aria-label="Toggle fullscreen">Fullscreen</button>
+    </div>
+    <div class="gcanvas-wrap" id="lgWrap"><canvas id="lgChart" role="img" aria-label="Graph of logarithm function logₐ(x)"></canvas></div>
+    <div class="gfacts" id="lgFacts" aria-label="Graph facts"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1rem" class="rv">
+    <div class="card">
+      <h3 class="cb">When a &gt; 1 (e.g. log₂)</h3>
+      <div style="font-size:13px;color:var(--mt);line-height:1.75;margin-top:6px">✓ Increasing function<br>✓ Passes through (1, 0)<br>✓ Domain: x &gt; 0 &nbsp; Range: ℝ<br>✓ Vertical asymptote: x = 0<br>✓ f(a) = 1</div>
+    </div>
+    <div class="card">
+      <h3 class="cg">When 0 &lt; a &lt; 1 (e.g. log₀.₅)</h3>
+      <div style="font-size:13px;color:var(--mt);line-height:1.75;margin-top:6px">✓ Decreasing function<br>✓ Passes through (1, 0)<br>✓ Domain: x &gt; 0 &nbsp; Range: ℝ<br>✓ Vertical asymptote: x = 0<br>✓ Reflection of a&gt;1 case</div>
+    </div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:1rem">
+    <h3>Two types of logarithm</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.75rem">
+      <div class="eqcard"><div class="eqlabel">Common Logarithm</div><div class="eqval ca">log₁₀(x) = log(x)</div><div style="font-size:12px;color:var(--mt);margin-top:5px">Base 10. Used in engineering, pH, Richter scale.</div></div>
+      <div class="eqcard"><div class="eqlabel">Natural Logarithm</div><div class="eqval cb">logₑ(x) = ln(x)</div><div style="font-size:12px;color:var(--mt);margin-top:5px">Base e ≈ 2.71828. Used in calculus, physics.</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- LAWS -->
+<section id="laws" aria-label="Laws of logarithms with proofs">
+<div class="container">
+  <div class="tag tag-green">Act VII — Fundamental Laws</div>
+  <h2>Laws of logarithms<br>with <span class="cg">full proofs</span></h2>
+  <p class="lead">Every law follows directly from the definition. None are magic — they all come from properties of exponents you already know.</p>
+
+  <div id="lawsList" class="rv" role="list" aria-label="Logarithm laws"></div>
+
+  <h3 style="margin:1.5rem 0 .75rem">Verify all laws live</h3>
+  <div class="ver rv" role="region" aria-label="Laws verifier">
+    <p style="font-size:12px;color:var(--mt);margin-bottom:.5rem">Enter values to verify every law numerically. Try m=8, n=4, base=2.</p>
+    <div class="vgrid">
+      <div class="vwrap"><label for="vBase">Base (a &gt; 1)</label><input type="number" id="vBase" value="2" min="1.01" step=".5" oninput="verLaws()" aria-label="Base value"></div>
+      <div class="vwrap"><label for="vM">m (&gt; 0)</label><input type="number" id="vM" value="8" min=".01" step="1" oninput="verLaws()" aria-label="m value"></div>
+      <div class="vwrap"><label for="vN">n (&gt; 0)</label><input type="number" id="vN" value="4" min=".01" step="1" oninput="verLaws()" aria-label="n value"></div>
+    </div>
+    <div class="vres" id="vRes" aria-live="polite" role="status"></div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- PROBLEMS -->
+<section id="problems" aria-label="Practice problems">
+<div class="container">
+  <div class="tag tag-blue">Problems from Your Notes</div>
+  <h2>Worked examples —<br><span class="cb">step by step</span></h2>
+  <p class="lead">Problems from your notes, now interactive. Reveal hints and steps one at a time, then submit your own answer.</p>
+  <div class="prob-topbar">
+    <label for="difficultyFilter" style="font-size:13px;color:var(--mt)">Difficulty</label>
+    <select id="difficultyFilter" class="prob-filter" aria-label="Filter by difficulty">
+      <option value="All">All</option>
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+      <option value="JEE">JEE</option>
+    </select>
+    <button id="practiceModeBtn" class="practice-mode-btn" aria-pressed="false" title="Shuffle problems randomly">🔀 Practice Mode</button>
+    <button id="randomProblemBtn" class="prob-btn prob-random" aria-label="Jump to a random problem">Random problem</button>
+  </div>
+  <div id="probsList" role="list" aria-label="Practice problems list"></div>
+</div>
+</section>
+
+<hr>
+
+<!-- MASTERY DASHBOARD -->
+<section id="mastery" aria-label="Mastery dashboard">
+<div class="container">
+  <div class="tag tag-green">Your Progress</div>
+  <h2>Mastery <span class="cg">Dashboard</span></h2>
+  <p class="lead">Track your progress through the practice problems. Correct answers are saved across sessions.</p>
+  <div id="masteryDash" role="region" aria-label="Mastery statistics"></div>
+</div>
+</section>
+
+<hr>
+
+<!-- QUIZ -->
+<section id="quiz" aria-label="Final quiz">
+<div class="container">
+  <div class="tag tag-gold">Final Check</div>
+  <h2>Quick <span class="ca">quiz</span></h2>
+  <p class="lead">Test your understanding. Instant feedback with explanation on each answer.</p>
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;flex-wrap:wrap">
+    <label style="font-size:13px;color:var(--mt);display:flex;align-items:center;gap:6px;cursor:pointer">
+      <input type="checkbox" id="timedModeCheck" style="accent-color:var(--a);width:14px;height:14px" aria-label="Enable timed mode, 30 seconds per question">
+      Timed mode <span style="color:var(--mt)">(30s per question)</span>
+    </label>
+  </div>
+
+  <div class="quiz-timer" id="quizTimer" role="timer" aria-label="Time remaining">
+    <span style="font-size:11px;color:var(--mt)">TIME</span>
+    <div class="timer-bar-wrap" aria-hidden="true"><div class="timer-bar" id="timerBar"></div></div>
+    <span class="timer-val" id="timerVal" aria-live="assertive">30</span>
+  </div>
+
+  <div id="quizBox" role="region" aria-label="Quiz question"></div>
+</div>
+</section>
+
+</main>
+
+<footer>
+  <span>Logarithms made easy</span>
+  &nbsp;·&nbsp;
+  <span style="color:var(--a)">Progress auto-saved</span>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

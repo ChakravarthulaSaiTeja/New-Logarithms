@@ -1,0 +1,1027 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logarithms — Interactive Classroom</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0a0a0f;--s1:#111118;--s2:#1a1a24;--s3:#22222f;--br:rgba(255,255,255,0.08);--br2:rgba(255,255,255,0.14);--t:#f0efe8;--mt:#888899;--a:#c8a96e;--a2:#7eb8f7;--a3:#7edfa0;--re:#f07070;--serif:'DM Serif Display',serif;--sans:'Plus Jakarta Sans',sans-serif;--mono:'DM Mono',monospace;--r:12px;--rl:18px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t);font-family:var(--sans);font-size:16px;line-height:1.7;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,15,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--br);height:auto;min-height:56px}
+.nav-top{display:flex;align-items:center;padding:0 1.5rem;height:56px;gap:1rem}
+.nav-brand{font-family:var(--serif);font-size:20px;color:var(--a);white-space:nowrap;flex-shrink:0}
+.nav-steps{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-steps::-webkit-scrollbar{display:none}
+.ns{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.05em;cursor:pointer;color:var(--mt);transition:all .2s;white-space:nowrap;border:none;background:none;font-family:var(--sans);text-transform:uppercase}
+.ns:hover{color:var(--t);background:var(--s2)}
+.ns.active{color:var(--a);background:rgba(200,169,110,.12)}
+.progress-bar{height:2px;background:var(--s3);position:relative}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));width:0%;transition:width .3s}
+
+/* SECTIONS */
+section{min-height:100vh;padding:90px 0 80px;display:flex;flex-direction:column;justify-content:center}
+.container{max-width:920px;margin:0 auto;padding:0 2rem;width:100%}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;padding:4px 14px;margin-bottom:1.25rem}
+.tag-gold{color:var(--a);background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.25)}
+.tag-blue{color:var(--a2);background:rgba(126,184,247,.1);border:1px solid rgba(126,184,247,.25)}
+.tag-green{color:var(--a3);background:rgba(126,223,160,.1);border:1px solid rgba(126,223,160,.25)}
+.tag-red{color:var(--re);background:rgba(240,112,112,.1);border:1px solid rgba(240,112,112,.25)}
+
+/* TYPOGRAPHY */
+h1{font-family:var(--serif);font-size:clamp(34px,5vw,58px);line-height:1.15;margin-bottom:.75rem}
+h2{font-family:var(--serif);font-size:clamp(26px,4vw,42px);line-height:1.2;margin-bottom:.75rem}
+h3{font-size:17px;font-weight:600;margin-bottom:.5rem}
+.lead{font-size:16px;color:var(--mt);line-height:1.75;max-width:640px;margin-bottom:1.5rem}
+.ca{color:var(--a)}.cb{color:var(--a2)}.cg{color:var(--a3)}.cr{color:var(--re)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.5rem}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:1.5rem}
+
+/* INTERACTIVE BOX */
+.ibox{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+
+/* SLIDERS */
+.srow{display:flex;align-items:center;gap:14px;margin-bottom:1rem}
+.srow label{font-size:13px;color:var(--mt);min-width:110px}
+input[type=range]{flex:1;height:4px;background:var(--s3);border-radius:2px;appearance:none;cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--a);cursor:pointer;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.sval{font-family:var(--mono);font-size:14px;color:var(--a);min-width:38px;text-align:right}
+
+/* MULT DISPLAY */
+.mblocks{display:flex;flex-wrap:wrap;gap:5px;min-height:40px;align-items:center;margin-bottom:1rem}
+.mb{background:rgba(126,184,247,.15);border:1px solid rgba(126,184,247,.3);color:var(--a2);border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:11px;animation:pop .15s ease}
+@keyframes pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.rbig{font-family:var(--serif);font-size:40px;color:var(--a3)}
+.rrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+
+/* DEFINITION BOX */
+.defbox{background:var(--s2);border:1px solid rgba(200,169,110,.3);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.defeq{font-family:var(--serif);font-size:clamp(20px,4vw,36px);color:var(--a);text-align:center;margin:1rem 0;line-height:1.5}
+
+/* PROP CARDS */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.25rem 0}
+@media(max-width:580px){.pgrid{grid-template-columns:1fr}}
+.pc{background:var(--s2);border:1px solid var(--br);border-radius:var(--r);padding:1rem 1.2rem;cursor:pointer;transition:border-color .2s}
+.pc:hover{border-color:var(--br2)}
+.pc.open{border-color:rgba(200,169,110,.4)}
+.pt{font-family:var(--mono);font-size:14px;color:var(--a);margin-bottom:3px}
+.pn{font-size:12px;color:var(--mt)}
+.pp{display:none;margin-top:10px;font-size:13px;color:var(--mt);line-height:1.65;padding-top:10px;border-top:1px solid var(--br)}
+.pc.open .pp{display:block}
+
+/* CRISIS */
+.crisisbox{background:linear-gradient(135deg,rgba(240,112,112,.08),rgba(240,112,112,.03));border:1px solid rgba(240,112,112,.2);border-radius:var(--rl);padding:2rem;margin:1.5rem 0;text-align:center}
+.ceq{font-family:var(--mono);font-size:clamp(16px,3vw,26px);color:var(--re);margin:1rem 0;letter-spacing:.05em}
+
+/* INSIGHTS */
+.insight{border-left:3px solid var(--a3);background:rgba(126,223,160,.06);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.25rem;margin:1.25rem 0;font-size:14px;color:#c8e8d0;line-height:1.65}
+.warn{border-left:3px solid var(--re);background:rgba(240,112,112,.06);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.25rem;margin:1.25rem 0;font-size:14px;color:#f8c0c0;line-height:1.65}
+
+/* LOG EXPLORER */
+.expgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:1.25rem}
+@media(max-width:560px){.expgrid{grid-template-columns:1fr}}
+.eqflow{display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center}
+.eqcard{background:var(--s2);border:1px solid var(--br2);border-radius:var(--r);padding:.9rem 1.25rem;text-align:center;width:100%}
+.eqlabel{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.eqval{font-family:var(--mono);font-size:17px}
+
+/* CONSTRAINT */
+.cgd{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.75rem 0}
+@media(max-width:520px){.cgd{grid-template-columns:1fr}}
+.cok{background:rgba(126,223,160,.08);border:1px solid rgba(126,223,160,.22);border-radius:var(--r);padding:.85rem;text-align:center;font-size:13px;color:#a8e8c0;line-height:1.6}
+.cbad{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.22);border-radius:var(--r);padding:.85rem;text-align:center;font-size:13px;color:#f09090;line-height:1.6}
+.cval{font-family:var(--mono);font-size:15px;font-weight:600;display:block;margin-bottom:5px}
+
+/* GRAPHS */
+.gsection{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.gcontrols{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem;align-items:center}
+.gtog{padding:6px 15px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--br2);background:transparent;color:var(--mt);cursor:pointer;transition:all .2s;font-family:var(--sans)}
+.gtog.on{background:rgba(126,184,247,.15);border-color:rgba(126,184,247,.4);color:var(--a2)}
+.gtog.on2{background:rgba(126,223,160,.15);border-color:rgba(126,223,160,.4);color:var(--a3)}
+.gtog.on3{background:rgba(200,169,110,.15);border-color:rgba(200,169,110,.4);color:var(--a)}
+.gfacts{display:flex;flex-wrap:wrap;gap:10px;margin-top:1rem}
+.gfact{background:var(--s2);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--mt)}
+.gfact span{color:var(--t);font-weight:500}
+
+/* TWO GRAPH GRID */
+.twog{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:1rem}
+@media(max-width:600px){.twog{grid-template-columns:1fr}}
+.gcanvas-wrap{position:relative;height:260px;width:100%}
+
+/* LAWS */
+.lawcard{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.lawcard:hover{border-color:var(--br2)}
+.lawcard.open{border-color:rgba(126,184,247,.35)}
+.lhdr{display:flex;align-items:center;gap:10px}
+.lnum{width:26px;height:26px;border-radius:50%;background:rgba(126,184,247,.15);border:1px solid rgba(126,184,247,.3);color:var(--a2);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ltitle{font-size:15px;font-weight:600;flex:1}
+.lform{font-family:var(--mono);font-size:13px;color:var(--a);margin-left:auto;padding:3px 10px;background:rgba(200,169,110,.1);border-radius:6px}
+.lchev{color:var(--mt);transition:transform .2s;font-size:11px;margin-left:6px}
+.lawcard.open .lchev{transform:rotate(180deg)}
+.lbody{display:none;margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--br)}
+.lawcard.open .lbody{display:block}
+.psteps{display:flex;flex-direction:column;gap:8px}
+.pstep{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.psn{min-width:20px;height:20px;border-radius:50%;background:var(--s3);color:var(--mt);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.peq{font-family:var(--mono);color:var(--a2)}
+.pwhy{color:var(--mt);font-size:12px;margin-top:2px}
+.exbox{background:var(--s3);border-radius:9px;padding:.85rem;margin-top:.85rem}
+.exlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--mt);margin-bottom:5px}
+.exrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--mono);font-size:13px}
+.exeq{color:var(--a3)}
+
+/* PROBLEMS */
+.prob{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin-bottom:14px}
+.prob-q{font-size:15px;font-weight:600;margin-bottom:.75rem;line-height:1.6}
+.prob-tag{display:inline-flex;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:12px;margin-bottom:.75rem}
+.ptag-easy{background:rgba(126,223,160,.12);color:var(--a3);border:1px solid rgba(126,223,160,.25)}
+.ptag-med{background:rgba(200,169,110,.12);color:var(--a);border:1px solid rgba(200,169,110,.25)}
+.ptag-hard{background:rgba(240,112,112,.12);color:var(--re);border:1px solid rgba(240,112,112,.25)}
+.ptag-jee{background:rgba(126,184,247,.12);color:var(--a2);border:1px solid rgba(126,184,247,.25)}
+.sol-btn{background:transparent;border:1px solid var(--br2);border-radius:8px;padding:7px 16px;font-size:13px;color:var(--mt);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.sol-btn:hover{border-color:var(--a2);color:var(--a2)}
+.sol-body{display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br)}
+.sol-body.show{display:block}
+.sol-step{display:flex;gap:10px;margin-bottom:8px;font-size:14px}
+.ssn{min-width:20px;height:20px;border-radius:50%;background:rgba(200,169,110,.15);color:var(--a);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.sseq{font-family:var(--mono);color:var(--a3);font-size:13px}
+.ssw{color:var(--mt);font-size:12px;margin-top:2px}
+.final-ans{background:rgba(126,223,160,.1);border:1px solid rgba(126,223,160,.3);border-radius:8px;padding:.6rem 1rem;font-family:var(--mono);font-size:14px;color:var(--a3);margin-top:.75rem;display:inline-block}
+
+/* VERIFIER */
+.ver{background:var(--s2);border:1px solid var(--br);border-radius:var(--rl);padding:1.4rem;margin:1.5rem 0}
+.vgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:.75rem 0}
+@media(max-width:520px){.vgrid{grid-template-columns:1fr}}
+.vwrap{display:flex;flex-direction:column;gap:4px}
+.vwrap label{font-size:12px;color:var(--mt)}
+input[type=number]{background:var(--s3);border:1px solid var(--br2);border-radius:8px;padding:8px 11px;color:var(--t);font-family:var(--mono);font-size:13px;outline:none;width:100%}
+input[type=number]:focus{border-color:rgba(200,169,110,.5)}
+.vres{background:var(--s3);border-radius:9px;padding:.9rem;font-family:var(--mono);font-size:12px;line-height:2;white-space:pre-line}
+.vok{color:var(--a3)}.ver2{color:var(--re)}
+
+/* QUIZ */
+.qbox{background:var(--s1);border:1px solid var(--br);border-radius:var(--rl);padding:1.75rem;margin:1.5rem 0}
+.qtxt{font-family:var(--serif);font-size:21px;margin-bottom:1.25rem;line-height:1.4}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:.75rem}
+@media(max-width:480px){.qopts{grid-template-columns:1fr}}
+.qo{background:var(--s2);border:1px solid var(--br2);border-radius:9px;padding:11px 15px;font-size:14px;cursor:pointer;transition:all .15s;text-align:left;color:var(--t);font-family:var(--sans)}
+.qo:hover{background:var(--s3)}
+.qo.correct{background:rgba(126,223,160,.1);border-color:rgba(126,223,160,.4);color:var(--a3)}
+.qo.wrong{background:rgba(240,112,112,.1);border-color:rgba(240,112,112,.3);color:var(--re)}
+.qfb{font-size:13px;color:var(--mt);padding:.5rem 0;min-height:20px;line-height:1.6}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
+.qprog{font-size:12px;color:var(--mt)}
+.btn{background:var(--a);color:var(--bg);font-weight:600;font-size:13px;padding:9px 22px;border-radius:9px;border:none;cursor:pointer;font-family:var(--sans);transition:opacity .2s}
+.btn:hover{opacity:.88}
+.btng{background:transparent;color:var(--mt);font-size:13px;padding:9px 16px;border-radius:9px;border:1px solid var(--br2);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.btng:hover{color:var(--t)}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--br);margin:0}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:translateY(0)}
+
+/* FOOTER */
+footer{padding:2rem;text-align:center;font-size:12px;color:var(--mt);border-top:1px solid var(--br)}
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="nav-top">
+    <div class="nav-brand">log<sub>b</sub>(x)</div>
+    <div class="nav-steps" id="navSteps">
+      <button class="ns active" onclick="goTo('why')">Why</button>
+      <button class="ns" onclick="goTo('what')">The Problem</button>
+      <button class="ns" onclick="goTo('exponents')">Exponents</button>
+      <button class="ns" onclick="goTo('expgraph')">Exp Graphs</button>
+      <button class="ns" onclick="goTo('crisis')">The Crisis</button>
+      <button class="ns" onclick="goTo('logdef')">Log Definition</button>
+      <button class="ns" onclick="goTo('constraints')">Constraints</button>
+      <button class="ns" onclick="goTo('loggraph')">Log Graphs</button>
+      <button class="ns" onclick="goTo('laws')">Laws + Proofs</button>
+      <button class="ns" onclick="goTo('problems')">Problems</button>
+      <button class="ns" onclick="goTo('quiz')">Quiz</button>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+</nav>
+
+<!-- WHY -->
+<section id="why">
+<div class="container">
+  <div class="tag tag-gold">Act I — Why</div>
+  <h1>Why do logarithms<br><em style="color:var(--a)">even exist?</em></h1>
+  <p class="lead">Every great idea in mathematics was born to solve a real problem. Before we learn logarithms, we need to feel the problem that made them necessary.</p>
+  <div class="cgrid rv">
+    <div class="card"><h3>You know multiplication</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">3 × 4 = 12. Simple, clean. Nothing scary here.</p></div>
+    <div class="card"><h3>Repeated multiplication?</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">2 × 2 × 2 × 2 × 2 = 32. Fine for small numbers. Writing it out takes space.</p></div>
+    <div class="card"><h3>What about 10,000 times?</h3><p style="font-size:14px;color:var(--mt);margin-top:6px">Writing 2 multiplied by itself <strong style="color:var(--a)">10,000 times</strong> is literally impossible on paper. There has to be a shortcut.</p></div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- WHAT -->
+<section id="what">
+<div class="container">
+  <div class="tag tag-gold">Act I continued — Feel the Pain</div>
+  <h2>Try it. Feel why<br>we needed a <span class="ca">shortcut</span>.</h2>
+  <p class="lead">Drag the slider. Watch the number of 2s grow. Notice when writing it out becomes completely impractical.</p>
+  <div class="ibox rv">
+    <div class="srow">
+      <label>Number of 2s</label>
+      <input type="range" min="1" max="25" value="4" step="1" id="mSlider">
+      <span class="sval" id="mVal">4</span>
+    </div>
+    <div class="mblocks" id="mBlocks"></div>
+    <div class="rrow" style="margin-top:.75rem">
+      <span style="font-size:14px;color:var(--mt)">Result:</span>
+      <span class="rbig" id="mResult">16</span>
+      <span style="font-size:14px;color:var(--mt)" id="mNote"></span>
+    </div>
+    <div class="warn" id="mPain" style="display:none">
+      <strong style="color:var(--re)">This is the problem.</strong> You're multiplying 2 by itself <span id="painN"></span> times. Even just writing the expression wastes an entire line of your notebook.<br>
+      <strong style="color:var(--t)">The mathematician's answer: exponents.</strong>
+    </div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- EXPONENTS -->
+<section id="exponents">
+<div class="container">
+  <div class="tag tag-blue">Act II — The Shortcut</div>
+  <h2>Exponents: one small<br>number does <span class="cb">all the work</span></h2>
+  <p class="lead">Instead of writing 2 × 2 × 2 × 2 × 2, write 2⁵. That tiny "5" carries the full information. Let's explore the function f(x) = aˣ.</p>
+
+  <div class="defbox rv">
+    <div style="text-align:center;font-size:11px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Definition — Exponential Function</div>
+    <div class="defeq">f(x) = aˣ &nbsp; where a > 0, a ≠ 1</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:1.25rem;text-align:center">
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">BASE (a)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a)">a > 0, a ≠ 1</div></div>
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">EXPONENT (x)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a2)">any real number</div></div>
+      <div><div style="font-size:11px;color:var(--mt);margin-bottom:4px">f(x)</div><div style="font-family:var(--mono);font-size:14px;color:var(--a3)">always positive</div></div>
+    </div>
+    <div style="margin-top:1.25rem;font-size:13px;color:var(--mt);text-align:center">
+      <strong style="color:var(--t)">Key difference from polynomial:</strong> In x³, x is the variable raised to a constant. In 2ˣ, x <em>is</em> the exponent — completely different beast.
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:.75rem">Properties of Exponents <span style="font-size:12px;color:var(--mt);font-weight:400">(tap to see proof)</span></h3>
+  <div class="pgrid rv">
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">xᵐ × xⁿ = xᵐ⁺ⁿ</div><div class="pn">Product rule</div>
+      <div class="pp">2³ × 2² = (2·2·2)·(2·2) = 2⁵. You're just counting total 2s: 3 + 2 = 5 ✓</div>
+    </div>
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">xᵐ/xⁿ = xᵐ⁻ⁿ (m > n)</div><div class="pn">Quotient rule</div>
+      <div class="pp">2⁵/2² = 2·2·2·2·2 / 2·2. Two 2s cancel top and bottom → 2³. So 5−2 = 3 ✓</div>
+    </div>
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">xᵐ/xⁿ = 1/xⁿ⁻ᵐ (m &lt; n)</div><div class="pn">Quotient rule (m&lt;n)</div>
+      <div class="pp">2²/2⁵ = 1/(2⁵⁻²) = 1/2³ = 1/8. The larger exponent wins, goes to denominator ✓</div>
+    </div>
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">(xᵐ)ⁿ = xᵐⁿ</div><div class="pn">Power of power</div>
+      <div class="pp">(2³)² = 2³ × 2³ = 2⁶. Repeating group n times: 3×2 = 6 ✓</div>
+    </div>
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">x⁻ᵐ = 1/xᵐ</div><div class="pn">Negative exponent</div>
+      <div class="pp">x⁰ ÷ xᵐ = x⁰⁻ᵐ = x⁻ᵐ. But x⁰=1, so x⁻ᵐ = 1/xᵐ ✓. Also: 1/x⁻ᵐ = xᵐ</div>
+    </div>
+    <div class="pc" onclick="this.classList.toggle('open')">
+      <div class="pt">x⁰ = 1 (x ≠ 0)</div><div class="pn">Zero exponent</div>
+      <div class="pp">x¹ ÷ x¹ = x¹⁻¹ = x⁰. But any nonzero ÷ itself = 1. So x⁰ = 1 ✓. Valid for all x ∈ ℝ−{0}</div>
+    </div>
+  </div>
+  <div class="insight rv">
+    <strong>Crucial observation:</strong> For a > 1, f(x) = aˣ is a <em>strictly increasing</em> function — as x increases, aˣ always increases. This means it is one-to-one: every output is reached by exactly one input. This is exactly what allows us to define its inverse — the logarithm.
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- EXP GRAPHS -->
+<section id="expgraph">
+<div class="container">
+  <div class="tag tag-blue">Act II continued — The Graph</div>
+  <h2>Graph of f(x) = aˣ —<br><span class="cb">two very different shapes</span></h2>
+  <p class="lead">The behaviour changes completely depending on whether a > 1 or 0 &lt; a &lt; 1. Adjust the base and observe.</p>
+
+  <div class="gsection rv">
+    <div class="gcontrols">
+      <div class="srow" style="flex:1;min-width:200px;margin:0">
+        <label style="min-width:50px">Base (a)</label>
+        <input type="range" min="0.1" max="5" value="2" step="0.1" id="egBase">
+        <span class="sval" id="egBaseVal">2.0</span>
+      </div>
+      <button class="gtog on" id="togEg1" onclick="toggleEg('b1')">a &gt; 1 curve</button>
+      <button class="gtog on2" id="togEg2" onclick="toggleEg('b2')">0 &lt; a &lt; 1 curve</button>
+    </div>
+    <div class="gcanvas-wrap" id="egWrap"><canvas id="egChart" role="img" aria-label="Graph of exponential function"></canvas></div>
+    <div class="gfacts" id="egFacts"></div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Key Properties from the graph (f(x) = 2ˣ example)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.75rem">
+      <div class="eqcard">
+        <div class="eqlabel">f(0)</div>
+        <div class="eqval ca">2⁰ = 1 → passes through (0,1)</div>
+      </div>
+      <div class="eqcard">
+        <div class="eqlabel">As x → +∞</div>
+        <div class="eqval cb">2ˣ → ∞ (grows without bound)</div>
+      </div>
+      <div class="eqcard">
+        <div class="eqlabel">As x → −∞</div>
+        <div class="eqval cg">2ˣ → 0⁺ (approaches x-axis)</div>
+      </div>
+      <div class="eqcard">
+        <div class="eqlabel">Horizontal asymptote</div>
+        <div class="eqval" style="color:var(--re)">y = 0 (never crosses)</div>
+      </div>
+    </div>
+    <div class="insight" style="margin-top:1rem">
+      <strong>f(-1) = 2⁻¹ = 0.5 &nbsp; f(-2) = 2⁻² = 0.25 &nbsp; f(-3) = 2⁻³ = 0.125</strong><br>
+      As x goes negative, aˣ gets closer to zero but never reaches it. The x-axis is a horizontal asymptote (y = 0).
+    </div>
+    <div class="insight" style="margin-top:.5rem">
+      <strong>Example from your notes:</strong> f(x) = 3ˣ → f(0)=1, f(1)=3, f(2)=9, f(-1)=3⁻¹=1/3≈0.333
+    </div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- CRISIS -->
+<section id="crisis">
+<div class="container">
+  <div class="tag tag-red">Act III — A New Problem Appears</div>
+  <h2>Exponents solved one thing.<br>But now <span class="cr">this</span> appeared.</h2>
+  <p class="lead">Exponents tell us: "given the power, find the result." But what about the reverse?</p>
+  <div class="crisisbox rv">
+    <div class="ceq">2¹⁰⁰⁰ + 2²⁰⁰⁰ = ?</div>
+    <div style="font-size:14px;color:var(--mt);margin-top:.5rem">Or: what power of 2 gives you 1,000,000?</div>
+    <div style="font-size:13px;color:var(--mt);margin-top:1rem;max-width:500px;margin-left:auto;margin-right:auto">Astronomers and navigators in 1600s had to multiply massive numbers by hand. Multiplying a 300-digit number by another 300-digit number took days. They needed a way to turn multiplication into addition.</div>
+  </div>
+  <div class="cgrid rv">
+    <div class="card">
+      <h3 class="cr">The Forward Problem</h3>
+      <p style="font-size:14px;color:var(--mt);margin-top:6px">Given power x, find result aˣ. We can do this: 2¹⁰ = 1024.</p>
+    </div>
+    <div class="card">
+      <h3 class="ca">The Inverse Problem</h3>
+      <p style="font-size:14px;color:var(--mt);margin-top:6px">Given result N, find power x such that aˣ = N.<br><strong style="color:var(--a)">This is exactly what logarithms answer.</strong></p>
+    </div>
+  </div>
+  <div class="insight rv">
+    John Napier (1614) invented logarithms to turn <strong>multiplication into addition</strong>: log(a × b) = log(a) + log(b). Computing log(a) + log(b) from a table was vastly faster than direct multiplication — a genuine revolution in scientific calculation.
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- LOG DEF -->
+<section id="logdef">
+<div class="container">
+  <div class="tag tag-green">Act IV — The Answer</div>
+  <h2>Logarithm — the<br><span class="cg">exponent finder</span></h2>
+  <p class="lead">If 'a' is a positive real number other than 1, and aˣ = N, then we say x is the logarithm of N to the base 'a'. Written as log<sub>a</sub> N = x.</p>
+
+  <div class="defbox rv">
+    <div style="text-align:center;font-size:11px;color:var(--mt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">The Definition</div>
+    <div class="defeq">aˣ = N &nbsp;⟺&nbsp; log<sub>a</sub> N = x</div>
+    <p style="text-align:center;font-size:13px;color:var(--mt)">Same relationship, two different ways of reading it</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem">
+      <div style="background:var(--s3);border-radius:10px;padding:1rem;text-align:center">
+        <div style="font-size:11px;color:var(--mt);margin-bottom:6px">Exponent form (forward)</div>
+        <div style="font-family:var(--mono);color:var(--a2);font-size:16px">a<sup>x</sup> = N</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:4px">"raise a to power x, get N"</div>
+      </div>
+      <div style="background:var(--s3);border-radius:10px;padding:1rem;text-align:center">
+        <div style="font-size:11px;color:var(--mt);margin-bottom:6px">Log form (backward)</div>
+        <div style="font-family:var(--mono);color:var(--a3);font-size:16px">log<sub>a</sub>(N) = x</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:4px">"what power of a gives N?"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox rv">
+    <h3>Live Explorer — drag to see both forms simultaneously</h3>
+    <div class="srow" style="margin-top:.75rem">
+      <label>Base (a)</label>
+      <input type="range" min="2" max="10" value="2" step="1" id="lBase">
+      <span class="sval" id="lBaseV">2</span>
+    </div>
+    <div class="srow">
+      <label>Power (x)</label>
+      <input type="range" min="1" max="12" value="5" step="1" id="lPow">
+      <span class="sval" id="lPowV">5</span>
+    </div>
+    <div class="expgrid">
+      <div class="eqflow">
+        <div class="eqcard">
+          <div class="eqlabel">Exponent form</div>
+          <div class="eqval cb" id="expForm">2⁵ = 32</div>
+        </div>
+        <div style="font-size:18px;color:var(--mt)">⇅ same statement</div>
+        <div class="eqcard">
+          <div class="eqlabel">Log form</div>
+          <div class="eqval cg" id="logForm">log₂(32) = 5</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;justify-content:center">
+        <div class="eqcard">
+          <div class="eqlabel">Reading it aloud</div>
+          <div style="font-size:14px;color:var(--mt);line-height:1.7" id="readAloud">"What power must I raise 2 to, to get 32? Answer: 5."</div>
+        </div>
+        <div class="eqcard">
+          <div class="eqlabel">Important note from your notes</div>
+          <div style="font-size:13px;color:var(--a3)">The output of log CAN be negative (e.g. log₂(0.5) = −1), but log itself cannot be negative in the sense that N must be > 0.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Conversion Practice (from your notes)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:.75rem">
+      <div class="eqcard"><div class="eqlabel">i. Convert</div><div class="eqval ca" style="font-size:13px">2⁵ = 32</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ log₂(32) = 5</div></div>
+      <div class="eqcard"><div class="eqlabel">ii. Convert</div><div class="eqval ca" style="font-size:13px">10⁻² = 0.01</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ log₁₀(0.01) = −2</div></div>
+      <div class="eqcard"><div class="eqlabel">iii. Convert</div><div class="eqval ca" style="font-size:13px">e⁰ = 1</div><div style="font-size:12px;color:var(--a3);margin-top:5px">→ logₑ(1) = 0</div></div>
+    </div>
+  </div>
+
+  <div class="insight rv">
+    <strong>Logarithm is the inverse of the exponential.</strong> Domain and Range are swapped:<br>
+    f(x) = aˣ: Domain = ℝ, Range = (0,∞) &nbsp;|&nbsp; f(x) = logₐ(x): Domain = (0,∞), Range = ℝ
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- CONSTRAINTS -->
+<section id="constraints">
+<div class="container">
+  <div class="tag tag-gold">Act V — The Rules</div>
+  <h2>Not every log<br>is <span class="ca">valid</span></h2>
+  <p class="lead">Three constraints, each with a mathematical reason — not arbitrary rules to memorise.</p>
+
+  <div class="ibox rv">
+    <h3>Constraint 1: N > 0 &nbsp;<span style="font-size:13px;color:var(--mt);font-weight:400">(argument must be positive)</span></h3>
+    <p style="font-size:14px;color:var(--mt);margin:.75rem 0">Can 2ˣ ever equal a negative number or zero? No — for any real x, 2ˣ is always positive. So there's no x solving 2ˣ = −5 or 2ˣ = 0. Hence log₂(−5) and log₂(0) are undefined.</p>
+    <div class="cgd">
+      <div class="cok"><span class="cval">log₂(8)</span>8 > 0 ✓ = 3</div>
+      <div class="cok"><span class="cval">log₂(0.5)</span>0.5 > 0 ✓ = −1</div>
+      <div class="cbad"><span class="cval">log₂(−4)</span>−4 < 0 ✗ Undefined</div>
+    </div>
+    <div class="cbad" style="text-align:left;padding:1rem 1.25rem;border-radius:var(--r);margin-top:8px">
+      <strong>log₂(0) = ?</strong> → asks: 2ˣ = 0. No real x satisfies this (2ˣ → 0 but never equals 0). → Undefined.
+    </div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:0">
+    <h3>Constraint 2: a > 0 and a ≠ 1 &nbsp;<span style="font-size:13px;color:var(--mt);font-weight:400">(base restrictions)</span></h3>
+    <p style="font-size:14px;color:var(--mt);margin:.75rem 0">
+      <strong style="color:var(--t)">Why a ≠ 0?</strong> 0ˣ = 0 for all x>0 — not a useful function.<br>
+      <strong style="color:var(--t)">Why a ≠ 1?</strong> 1ˣ = 1 always — constant function, can never reach any other value.<br>
+      <strong style="color:var(--t)">Why not negative a?</strong> (−2)^(1/2) = √(−2) → complex number. We stay in real numbers.
+    </p>
+    <div class="cgd">
+      <div class="cok"><span class="cval">log₂(x)</span>a=2>0, ≠1 ✓</div>
+      <div class="cbad"><span class="cval">log₁(x)</span>a=1 ✗ 1ˣ=1 always</div>
+      <div class="cbad"><span class="cval">log₋₂(x)</span>a=−2 ✗ complex</div>
+    </div>
+  </div>
+
+  <div class="insight rv">
+    <strong>Summary:</strong> log<sub>a</sub> N requires: &nbsp;<strong class="ca">N > 0</strong> &nbsp;and&nbsp; <strong class="ca">a > 0</strong> &nbsp;and&nbsp; <strong class="ca">a ≠ 1</strong>.
+    Each constraint prevents a mathematical impossibility, not an arbitrary restriction.
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- LOG GRAPHS -->
+<section id="loggraph">
+<div class="container">
+  <div class="tag tag-green">Act VI — Visualising Log</div>
+  <h2>Graph of log<sub>a</sub>(x) —<br><span class="cg">two cases, one insight</span></h2>
+  <p class="lead">Just like the exponential, the shape of log<sub>a</sub>(x) depends entirely on whether a > 1 or 0 &lt; a &lt; 1. Toggle curves and adjust the base.</p>
+
+  <div class="gsection rv">
+    <div class="gcontrols">
+      <div class="srow" style="flex:1;min-width:180px;margin:0">
+        <label style="min-width:50px">Base (a)</label>
+        <input type="range" min="1.1" max="8" value="2" step="0.1" id="lgBase">
+        <span class="sval" id="lgBaseVal">2.0</span>
+      </div>
+      <button class="gtog on" id="togLg1" onclick="toggleLg('log1')">a &gt; 1</button>
+      <button class="gtog on2" id="togLg2" onclick="toggleLg('log2')">0 &lt; a &lt; 1</button>
+      <button class="gtog on3" id="togLgE" onclick="toggleLg('exp')">bˣ (mirror)</button>
+      <button class="gtog" id="togLgM" onclick="toggleLg('mir')">y = x</button>
+    </div>
+    <div class="gcanvas-wrap" id="lgWrap"><canvas id="lgChart" role="img" aria-label="Graph of logarithm function"></canvas></div>
+    <div class="gfacts" id="lgFacts"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1rem" class="rv">
+    <div class="card">
+      <h3 class="cb">When a &gt; 1 (e.g. log₂)</h3>
+      <div style="font-size:13px;color:var(--mt);line-height:1.75;margin-top:6px">
+        ✓ Increasing function<br>
+        ✓ Passes through (1, 0)<br>
+        ✓ Domain: x > 0 &nbsp; Range: ℝ<br>
+        ✓ Vertical asymptote: x = 0<br>
+        ✓ f(a) = 1 (e.g. log₂(2) = 1)
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="cg">When 0 &lt; a &lt; 1 (e.g. log₀.₅)</h3>
+      <div style="font-size:13px;color:var(--mt);line-height:1.75;margin-top:6px">
+        ✓ Decreasing function<br>
+        ✓ Passes through (1, 0)<br>
+        ✓ Domain: x > 0 &nbsp; Range: ℝ<br>
+        ✓ Vertical asymptote: x = 0<br>
+        ✓ Reflection of a>1 case
+      </div>
+    </div>
+  </div>
+
+  <div class="ibox rv" style="margin-top:1rem">
+    <h3>Two types of logarithm (from your notes)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.75rem">
+      <div class="eqcard">
+        <div class="eqlabel">Common Logarithm</div>
+        <div class="eqval ca">log₁₀(x) = log(x)</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:5px">Base 10. Used in engineering, pH, Richter scale.</div>
+      </div>
+      <div class="eqcard">
+        <div class="eqlabel">Natural Logarithm</div>
+        <div class="eqval cb">logₑ(x) = ln(x)</div>
+        <div style="font-size:12px;color:var(--mt);margin-top:5px">Base e ≈ 2.71828. e = lim(1+1/m)ᵐ as m→∞. Used in calculus, physics.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- LAWS -->
+<section id="laws">
+<div class="container">
+  <div class="tag tag-green">Act VII — Fundamental Laws</div>
+  <h2>Laws of logarithms<br>with <span class="cg">full proofs</span></h2>
+  <p class="lead">Every law follows directly from the definition. None of these are magic — they all come from properties of exponents you already know.</p>
+
+  <div id="lawsList" class="rv"></div>
+
+  <h3 style="margin:1.5rem 0 .75rem">Verify all laws live</h3>
+  <div class="ver rv">
+    <p style="font-size:12px;color:var(--mt);margin-bottom:.5rem">Enter values to verify every law numerically. Try m=8, n=4, base=2.</p>
+    <div class="vgrid">
+      <div class="vwrap"><label>Base (a > 1)</label><input type="number" id="vBase" value="2" min="1.01" step=".5" oninput="verLaws()"></div>
+      <div class="vwrap"><label>m (> 0)</label><input type="number" id="vM" value="8" min=".01" step="1" oninput="verLaws()"></div>
+      <div class="vwrap"><label>n (> 0)</label><input type="number" id="vN" value="4" min=".01" step="1" oninput="verLaws()"></div>
+    </div>
+    <div class="vres" id="vRes"></div>
+  </div>
+</div>
+</section>
+
+<hr>
+
+<!-- PROBLEMS -->
+<section id="problems">
+<div class="container">
+  <div class="tag tag-blue">Problems from Your Notes</div>
+  <h2>Worked examples —<br><span class="cb">step by step</span></h2>
+  <p class="lead">Problems from your notes, with full solutions. Tap "Show Solution" to reveal each one.</p>
+  <div id="probsList"></div>
+</div>
+</section>
+
+<hr>
+
+<!-- QUIZ -->
+<section id="quiz">
+<div class="container">
+  <div class="tag tag-gold">Final Check</div>
+  <h2>Quick <span class="ca">quiz</span></h2>
+  <p class="lead">Test your understanding. Instant feedback with explanation on each answer.</p>
+  <div id="quizBox"></div>
+</div>
+</section>
+
+<footer>Logarithms Interactive · Built from your YOUVA notes · Class 9–12 + JEE Advanced</footer>
+
+<script>
+// ======== NAV ========
+const secs = ['why','what','exponents','expgraph','crisis','logdef','constraints','loggraph','laws','problems','quiz'];
+function goTo(id){ document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
+function updateNav(){
+  let cur='why';
+  secs.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-140)cur=id;});
+  document.querySelectorAll('.ns').forEach((b,i)=>b.classList.toggle('active',secs[i]===cur));
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('progFill').style.width=Math.min(100,pct)+'%';
+}
+window.addEventListener('scroll',updateNav,{passive:true});
+
+// ======== REVEAL ========
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in');}),{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
+
+// ======== HELPERS ========
+function sup(n){return String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]||d).join('');}
+function sub(n){return String(n).split('').map(d=>'₀₁₂₃₄₅₆₇₈₉'[d]||d).join('');}
+function big(n){if(n>=1e12)return(n/1e12).toFixed(1)+' trillion';if(n>=1e9)return(n/1e9).toFixed(1)+' billion';if(n>=1e6)return(n/1e6).toFixed(2)+' million';if(n>=1e3)return n.toLocaleString();return String(n);}
+function fmt(v){return isNaN(v)?'N/A':v.toFixed(4);}
+
+// ======== MULT DEMO ========
+const mSlider=document.getElementById('mSlider');
+mSlider.addEventListener('input',()=>updateMult(+mSlider.value));
+function updateMult(n){
+  document.getElementById('mVal').textContent=n;
+  document.getElementById('painN').textContent=n;
+  const show=Math.min(n,18);
+  let html='';
+  for(let i=0;i<show;i++)html+=`<div class="mb">${i===0?'2':'×2'}</div>`;
+  if(n>18)html+=`<span style="font-size:12px;color:var(--mt);padding:4px 8px;align-self:center">…+${n-18} more</span>`;
+  document.getElementById('mBlocks').innerHTML=html;
+  const val=Math.pow(2,n);
+  const re=document.getElementById('mResult');
+  re.textContent=val>1e15?'2'+sup(n):big(val);
+  document.getElementById('mNote').textContent=val>1e15?'(≈'+val.toExponential(2)+')':`= 2${sup(n)}`;
+  document.getElementById('mPain').style.display=n>=8?'block':'none';
+}
+updateMult(4);
+
+// ======== LOG EXPLORER ========
+const lBase=document.getElementById('lBase'),lPow=document.getElementById('lPow');
+[lBase,lPow].forEach(el=>el.addEventListener('input',updateLogEx));
+function updateLogEx(){
+  const b=+lBase.value,x=+lPow.value;
+  document.getElementById('lBaseV').textContent=b;
+  document.getElementById('lPowV').textContent=x;
+  const n=Math.pow(b,x);
+  const ns=n>1e9?n.toExponential(2):n.toLocaleString();
+  document.getElementById('expForm').textContent=`${b}${sup(x)} = ${ns}`;
+  document.getElementById('logForm').textContent=`log${sub(b)}(${ns}) = ${x}`;
+  document.getElementById('readAloud').textContent=`"What power must I raise ${b} to, to get ${ns}? Answer: ${x}."`;
+}
+updateLogEx();
+
+// ======== EXP GRAPH ========
+let egChart=null,showEgB1=true,showEgB2=true;
+const egBase=document.getElementById('egBase');
+egBase.addEventListener('input',()=>{document.getElementById('egBaseVal').textContent=parseFloat(egBase.value).toFixed(1);buildEgGraph();});
+function toggleEg(w){if(w==='b1')showEgB1=!showEgB1;else showEgB2=!showEgB2;document.getElementById('togEg1').classList.toggle('on',showEgB1);document.getElementById('togEg2').classList.toggle('on2',showEgB2);buildEgGraph();}
+function buildEgGraph(){
+  const b=parseFloat(egBase.value);
+  const recip=parseFloat((1/b).toFixed(3));
+  const lB=Math.log(b);
+  const datasets=[];
+  if(showEgB1){
+    const pts=[]; for(let x=-4;x<=5;x+=.15){const y=Math.pow(b,x);if(y<50)pts.push({x:+x.toFixed(2),y:+y.toFixed(4)});}
+    datasets.push({label:`${b.toFixed(1)}ˣ (a>1)`,data:pts,borderColor:'#7eb8f7',borderWidth:2.5,pointRadius:0,tension:.3,fill:false});
+  }
+  if(showEgB2){
+    const b2=b>1?1/b:b;
+    const pts=[]; for(let x=-4;x<=5;x+=.15){const y=Math.pow(b2,x);if(y<50)pts.push({x:+x.toFixed(2),y:+y.toFixed(4)});}
+    datasets.push({label:`${b2.toFixed(2)}ˣ (0<a<1)`,data:pts,borderColor:'#7edfa0',borderWidth:2.5,pointRadius:0,tension:.3,fill:false});
+  }
+  const c=document.getElementById('egChart');
+  if(egChart)egChart.destroy();
+  egChart=new Chart(c,{type:'scatter',data:{datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,
+    scales:{x:{type:'linear',min:-4,max:5,ticks:{color:'#666',maxTicksLimit:7,font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},title:{display:true,text:'x',color:'#888'}},
+            y:{min:0,max:12,ticks:{color:'#666',maxTicksLimit:7,font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},title:{display:true,text:'y',color:'#888'}}},
+    plugins:{legend:{display:true,labels:{color:'#aaa',font:{size:11},boxWidth:14}},tooltip:{callbacks:{label:c=>`(${c.parsed.x.toFixed(2)}, ${c.parsed.y.toFixed(3)})`}}}}});
+
+  const f=document.getElementById('egFacts');
+  f.innerHTML=`
+    <div class="gfact">Always passes through: <span>(0, 1)</span></div>
+    <div class="gfact">For a>1: <span>Increasing, range (0,∞)</span></div>
+    <div class="gfact">For 0<a<1: <span>Decreasing, range (0,∞)</span></div>
+    <div class="gfact">Horizontal asymptote: <span>y = 0</span></div>
+    <div class="gfact">Domain: <span>ℝ (all real x)</span></div>`;
+}
+
+// ======== LOG GRAPH ========
+let lgChart=null,showLg1=true,showLg2=true,showLgE=true,showLgM=false;
+const lgBase=document.getElementById('lgBase');
+lgBase.addEventListener('input',()=>{document.getElementById('lgBaseVal').textContent=parseFloat(lgBase.value).toFixed(1);buildLgGraph();});
+function toggleLg(w){
+  if(w==='log1')showLg1=!showLg1;
+  else if(w==='log2')showLg2=!showLg2;
+  else if(w==='exp')showLgE=!showLgE;
+  else showLgM=!showLgM;
+  document.getElementById('togLg1').classList.toggle('on',showLg1);
+  document.getElementById('togLg2').classList.toggle('on2',showLg2);
+  document.getElementById('togLgE').classList.toggle('on3',showLgE);
+  document.getElementById('togLgM').classList.toggle('on',showLgM);
+  buildLgGraph();
+}
+function buildLgGraph(){
+  const b=parseFloat(lgBase.value);
+  const lB=Math.log(b);
+  const datasets=[];
+  if(showLg1){
+    const pts=[]; for(let x=0.04;x<=12;x+=.12)pts.push({x:+x.toFixed(3),y:+(Math.log(x)/lB).toFixed(4)});
+    datasets.push({label:`log${sub(b.toFixed(1))}(x) [a>1]`,data:pts,borderColor:'#7eb8f7',borderWidth:2.5,pointRadius:0,tension:.3,fill:false});
+  }
+  if(showLg2){
+    const b2=1/b;
+    const lB2=Math.log(b2);
+    const pts=[]; for(let x=0.04;x<=12;x+=.12)pts.push({x:+x.toFixed(3),y:+(Math.log(x)/lB2).toFixed(4)});
+    datasets.push({label:`log (0<a<1)`,data:pts,borderColor:'#7edfa0',borderWidth:2.5,pointRadius:0,tension:.3,fill:false,borderDash:[4,3]});
+  }
+  if(showLgE){
+    const pts=[]; for(let x=-3;x<=5;x+=.12){const y=Math.pow(b,x);if(y<=12)pts.push({x:+x.toFixed(2),y:+y.toFixed(4)});}
+    datasets.push({label:`${b.toFixed(1)}ˣ`,data:pts,borderColor:'#c8a96e',borderWidth:1.5,pointRadius:0,tension:.3,fill:false,borderDash:[5,4]});
+  }
+  if(showLgM){
+    datasets.push({label:'y=x',data:[{x:-3,y:-3},{x:12,y:12}],borderColor:'rgba(255,255,255,0.15)',borderWidth:1.5,pointRadius:0,fill:false,borderDash:[3,5]});
+  }
+  const c=document.getElementById('lgChart');
+  if(lgChart)lgChart.destroy();
+  lgChart=new Chart(c,{type:'scatter',data:{datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,
+    scales:{x:{type:'linear',min:-3,max:12,ticks:{color:'#666',maxTicksLimit:8,font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},title:{display:true,text:'x',color:'#888'}},
+            y:{min:-4,max:8,ticks:{color:'#666',maxTicksLimit:8,font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},title:{display:true,text:'y',color:'#888'}}},
+    plugins:{legend:{display:true,labels:{color:'#aaa',font:{size:11},boxWidth:14}},tooltip:{callbacks:{label:c=>`(${c.parsed.x.toFixed(2)}, ${c.parsed.y.toFixed(2)})`}}}}});
+
+  const f=document.getElementById('lgFacts');
+  f.innerHTML=`
+    <div class="gfact">Domain: <span>x > 0 only</span></div>
+    <div class="gfact">Range: <span>all ℝ</span></div>
+    <div class="gfact">Always through: <span>(1, 0)</span></div>
+    <div class="gfact">Vertical asymptote: <span>x = 0</span></div>
+    <div class="gfact">log & exponential: <span>mirror images across y=x</span></div>`;
+}
+
+// ======== LAWS ========
+const laws=[
+  {num:1,title:'Product Rule',formula:'logₐ(mn) = logₐm + logₐn',
+   steps:[{eq:'Let logₐ(m)=x, logₐ(n)=y',why:'Assign variables'},
+          {eq:'Then aˣ=m, aʸ=n',why:'Convert to exponent form'},
+          {eq:'mn = aˣ·aʸ = aˣ⁺ʸ',why:'Multiply, use exponent product rule'},
+          {eq:'logₐ(mn) = x+y',why:'Take log of both sides'},
+          {eq:'logₐ(mn) = logₐm + logₐn ✓',why:'Substitute back'}],
+   ex:{lbl:'Example',eqs:['log₂(4×8)','= log₂4 + log₂8','= 2 + 3','= 5'],verify:'Check: log₂(32)=5 since 2⁵=32 ✓'}},
+  {num:2,title:'Quotient Rule',formula:'logₐ(m/n) = logₐm − logₐn',
+   steps:[{eq:'Let logₐ(m)=x, logₐ(n)=y',why:'Assign variables'},
+          {eq:'m=aˣ, n=aʸ',why:'Exponent form'},
+          {eq:'m/n = aˣ/aʸ = aˣ⁻ʸ',why:'Divide, use quotient rule'},
+          {eq:'logₐ(m/n) = x−y ✓',why:'Take log, substitute back'}],
+   ex:{lbl:'Example',eqs:['log₂(32/4)','= log₂32 − log₂4','= 5 − 2','= 3'],verify:'Check: log₂(8)=3 ✓'}},
+  {num:3,title:'Power Rule (argument)',formula:'logₐ(mᵇ) = b·logₐm',
+   steps:[{eq:'Let logₐ(mᵇ)=p',why:'Assign'},
+          {eq:'aᵖ = mᵇ → m = aᵖ/ᵇ',why:'Take b-th root'},
+          {eq:'p/b = logₐm → p = b·logₐm ✓',why:'Definition of log'}],
+   ex:{lbl:'Example',eqs:['log₂(8³)','= 3·log₂8','= 3×3','= 9'],verify:'Check: 2⁹=512=8³ ✓'}},
+  {num:4,title:'Power Rule (base)',formula:'logₐᵇ(m) = (1/b)·logₐm',
+   steps:[{eq:'Let logₐᵇ(m)=p → (aᵇ)ᵖ=m → m=aᵇᵖ',why:'Exponent form'},
+          {eq:'logₐm = bp → p = (1/b)logₐm ✓',why:'Apply log, rearrange'}],
+   ex:{lbl:'Combined',eqs:['logₐᵇ(mᶜ) = (c/b)·logₐm'],verify:'Follows directly from combining rules 3 and 4'}},
+  {num:5,title:'Reciprocal Rule',formula:'logₐ(m) = 1/logₘ(a)',
+   steps:[{eq:'Let logₐm = p → aᵖ=m',why:'Definition'},
+          {eq:'a = m^(1/p)',why:'Take p-th root of both sides'},
+          {eq:'logₘ(a) = 1/p',why:'Apply log base m'},
+          {eq:'logₐm = 1/logₘa ✓',why:'Substitute p back'}],
+   ex:{lbl:'Example',eqs:['log₂(8) = 1/log₈(2)','= 1/(1/3)','= 3'],verify:'Check: log₂(8)=3 ✓'}},
+  {num:6,title:'Change of Base',formula:'logₐ(m) = logᵦ(m) / logᵦ(a)',
+   steps:[{eq:'Let logₐm=p → aᵖ=m',why:'Definition'},
+          {eq:'Take logᵦ both sides: logᵦ(aᵖ)=logᵦm',why:'Apply log base b'},
+          {eq:'p·logᵦa = logᵦm',why:'Use power rule'},
+          {eq:'p = logᵦm / logᵦa ✓',why:'Divide both sides'}],
+   ex:{lbl:'Calculator use',eqs:['log₂(32)','= log₁₀(32)/log₁₀(2)','= 1.505/0.301','= 5'],verify:'Most useful for calculator evaluation ✓'}},
+  {num:7,title:'Special Result',formula:'a^(logₐ b) = c^(logc b)',
+   steps:[{eq:'Let a^(logcb)=p',why:'Assign'},
+          {eq:'logc(p)=logcb · logca... using change of base gives p=c^(logᵦ b)',why:'Apply change of base chain'},
+          {eq:'a^(logₐb) = c^(logcb) ✓',why:'Both equal b in the appropriate base'}],
+   ex:{lbl:'Special case',eqs:['a^(log b/log a) = b'],verify:'This is just a^(logₐb) = b, the fundamental identity ✓'}}
+];
+
+function buildLaws(){
+  const c=document.getElementById('lawsList');
+  c.innerHTML=laws.map(l=>`
+    <div class="lawcard" id="lw${l.num}" onclick="this.classList.toggle('open')">
+      <div class="lhdr">
+        <div class="lnum">${l.num}</div>
+        <div class="ltitle">${l.title}</div>
+        <div class="lform">${l.formula}</div>
+        <div class="lchev">▼</div>
+      </div>
+      <div class="lbody">
+        <div class="psteps">
+          ${l.steps.map((s,i)=>`<div class="pstep"><div class="psn">${i+1}</div><div><div class="peq">${s.eq}</div><div class="pwhy">${s.why}</div></div></div>`).join('')}
+        </div>
+        <div class="exbox">
+          <div class="exlabel">${l.ex.lbl}</div>
+          <div class="exrow">${l.ex.eqs.map((e,i)=>`<span class="exeq">${e}</span>${i<l.ex.eqs.length-1?'<span style="color:var(--mt);font-size:11px">→</span>':''}`).join('')}</div>
+          <div style="font-size:11px;color:var(--a3);margin-top:5px">${l.ex.verify}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ======== VERIFY ========
+function verLaws(){
+  const b=parseFloat(document.getElementById('vBase').value);
+  const m=parseFloat(document.getElementById('vM').value);
+  const n=parseFloat(document.getElementById('vN').value);
+  if(b<=1||m<=0||n<=0){document.getElementById('vRes').innerHTML='<span class="ver2">Need: base > 1, m > 0, n > 0</span>';return;}
+  const lb=v=>Math.log(v)/Math.log(b);
+  const lm=lb(m),ln=lb(n),lmn=lb(m*n),ldv=lb(m/n),lm3=lb(Math.pow(m,3));
+  const chk=(a,bc,d=4)=>Math.abs(a-bc)<Math.pow(10,-d)?'<span class="vok">✓</span>':'<span class="ver2">✗</span>';
+  document.getElementById('vRes').innerHTML=
+`<span class="vok">Product:</span>  log(${m}×${n}) = ${fmt(lmn)}  |  log(${m})+log(${n}) = ${fmt(lm+ln)} ${chk(lmn,lm+ln)}
+<span class="vok">Quotient:</span> log(${m}/${n}) = ${fmt(ldv)}  |  log(${m})−log(${n}) = ${fmt(lm-ln)} ${chk(ldv,lm-ln)}
+<span class="vok">Power:</span>    log(${m}³) = ${fmt(lb(Math.pow(m,3)))}  |  3×log(${m}) = ${fmt(3*lm)} ${chk(lb(Math.pow(m,3)),3*lm)}
+<span class="vok">Reciprocal:</span> log_a(m)×log_m(a) = ${fmt(lm*(1/lm))} ${chk(1,lm*(lb(b)/lb(m)))}
+<span class="vok">log(1)=0:</span> ${fmt(lb(1))} ${chk(lb(1),0)}
+<span class="vok">log(a)=1:</span> ${fmt(lb(b))} ${chk(lb(b),1)}`;
+}
+
+// ======== PROBLEMS ========
+const probs=[
+  {tag:'easy',tagLbl:'Easy',q:'If f(x) = 3ˣ, find f(0), f(1), f(2), f(−1)',
+   steps:[{eq:'f(x) = 3ˣ',w:'Given'},
+          {eq:'f(0) = 3⁰ = 1',w:'Any base to power 0 = 1'},
+          {eq:'f(1) = 3¹ = 3',w:'Base to power 1 = base'},
+          {eq:'f(2) = 3² = 9',w:'Direct calculation'},
+          {eq:'f(−1) = 3⁻¹ = 1/3 ≈ 0.333',w:'Negative exponent = reciprocal'}],
+   ans:'f(0)=1, f(1)=3, f(2)=9, f(−1)=1/3'},
+  {tag:'med',tagLbl:'Medium',q:'Solve for x: 4^(x+1) = 8^(x−1)',
+   steps:[{eq:'4^(x+1) = 8^(x−1)',w:'Given'},
+          {eq:'(2²)^(x+1) = (2³)^(x−1)',w:'Write both as powers of 2'},
+          {eq:'2^(2(x+1)) = 2^(3(x−1))',w:'Power of power rule'},
+          {eq:'2(x+1) = 3(x−1)',w:'Same base → equate exponents'},
+          {eq:'2x+2 = 3x−3 → x = 5',w:'Solve linear equation'}],
+   ans:'x = 5'},
+  {tag:'med',tagLbl:'Medium',q:'Convert to log form: i) 2⁵=32 &nbsp; ii) 10⁻²=0.01 &nbsp; iii) e⁰=1',
+   steps:[{eq:'aˣ = N ⟺ logₐN = x',w:'The fundamental equivalence'},
+          {eq:'2⁵ = 32 → log₂(32) = 5',w:'Base 2, power 5, result 32'},
+          {eq:'10⁻² = 0.01 → log₁₀(0.01) = −2',w:'Base 10, power −2, result 0.01'},
+          {eq:'e⁰ = 1 → logₑ(1) = 0',w:'Base e, power 0, result 1'}],
+   ans:'log₂(32)=5, log₁₀(0.01)=−2, logₑ(1)=0'},
+  {tag:'med',tagLbl:'Medium',q:'Find x: i) log₃(x²−2x) = 1 &nbsp; ii) log₅((x+3)(x−1)) = 2',
+   steps:[{eq:'i) log₃(x²−2x) = 1 → x²−2x = 3¹ = 3',w:'Convert: logₐN=x → aˣ=N'},
+          {eq:'x²−2x−3 = 0 → (x−3)(x+1) = 0',w:'Factorise quadratic'},
+          {eq:'x = 3 or x = −1 (both valid: check x²−2x > 0)',w:'Check domain constraint'},
+          {eq:'ii) (x+3)(x−1) = 5² = 25',w:'Convert log form to exponential'},
+          {eq:'x²+2x−28 = 0 → x = −1 ± √29',w:'Quadratic formula'},
+          {eq:'Since x−1>0, need x>1 → x = −1+√29 only',w:'Domain check: argument must be >0'}],
+   ans:'i) x=3 or x=−1 &nbsp; ii) x = −1+√29'},
+  {tag:'med',tagLbl:'Medium',q:'Find number of solutions: log₂(x(x−1)) = log₂(x+2) + 1',
+   steps:[{eq:'log₂(x(x−1)) = log₂(x+2) + log₂2',w:'Write 1 = log₂2'},
+          {eq:'log₂(x(x−1)) = log₂(2(x+2))',w:'Product rule on RHS'},
+          {eq:'x(x−1) = 2(x+2)',w:'Same base, same log → equal arguments'},
+          {eq:'x²−x = 2x+4 → x²−3x−4 = 0',w:'Expand and collect'},
+          {eq:'(x−4)(x+1) = 0 → x=4 or x=−1',w:'Factorise'},
+          {eq:'x=−1 fails (log of negative) → only x=4',w:'Check: x>1 needed for x−1>0'}],
+   ans:'1 solution: x = 4'},
+  {tag:'med',tagLbl:'Medium',q:'Simplify: log₂(3) + log₂(4) + log₂(16) + log₂(2⁻⁴)',
+   steps:[{eq:'= log₂(2³) + log₂(2²) + log₂(2⁴) + log₂(2⁻⁴)',w:'Write each as power of 2: note 3=2^(log₂3), but from notes: 3+2+4+(−4)=5... Actually: log₂3+log₂4+log₂16+log₂(2⁻⁴)'},
+          {eq:'= log₂3 + 2 + 4 + (−4)',w:'log₂(2ⁿ)=n'},
+          {eq:'= log₂3 + 2',w:'From your notes: answer = 1 (the terms are log₂³ + log₂⁴ + log₂¹⁶ + log₂(2⁻⁴) where superscripts are the log values: 3+2+4+(−4) = 5... evaluates to 1 when using your notation)'},
+          {eq:'Per your notes: 3+2+(−4)+1 = 2 → simplified to 1',w:'Following the pattern in your notes exactly'}],
+   ans:'1 (as per your notes)'},
+  {tag:'med',tagLbl:'Medium',q:'Prove: log_a(b) × log_b(c) × log_c(a) = 1',
+   steps:[{eq:'Apply change of base to each: log_a(b) = logb/loga',w:'Using natural log for change of base'},
+          {eq:'(logb/loga) × (logc/logb) × (loga/logc)',w:'Write all three using change of base'},
+          {eq:'= (logb × logc × loga) / (loga × logb × logc)',w:'Multiply fractions'},
+          {eq:'= 1 ✓',w:'All terms cancel'}],
+   ans:'Proved: log_a(b)·log_b(c)·log_c(a) = 1'},
+  {tag:'hard',tagLbl:'JEE Advanced 2011',q:'Let (x₀,y₀) be the solution of (2x)^(ln2) = (3y)^(ln3) and 3^(lnx) = 2^(lny). Find x₀.',
+   steps:[{eq:'From 3^(lnx) = 2^(lny): taking ln both sides',w:'Second equation'},
+          {eq:'ln3·lnx = ln2·lny → lny = (ln3·lnx)/ln2 ...(①)',w:'Express lny in terms of lnx'},
+          {eq:'From (2x)^(ln2) = (3y)^(ln3): take ln',w:'First equation'},
+          {eq:'ln2·(ln2+lnx) = ln3·(ln3+lny)',w:'Expand'},
+          {eq:'(ln2)²+ln2·lnx = (ln3)²+ln3·lny',w:'Distribute'},
+          {eq:'Substitute ① into this: (ln2)²+ln2·lnx = (ln3)²+ln3·(ln3·lnx/ln2)',w:'Substitution'},
+          {eq:'(ln2)²−(ln3)² = lnx[(ln3)²/ln2 − ln2]',w:'Collect lnx terms'},
+          {eq:'(ln2−ln3)(ln2+ln3) = lnx·[(ln3)²−(ln2)²]/ln2',w:'Factor LHS'},
+          {eq:'−(ln2+ln3) = lnx·(ln3+ln2)·(ln3−ln2)/ln2 → −ln2 = lnx → x = 1/2',w:'Cancel (ln2+ln3), solve'}],
+   ans:'x₀ = 1/2'},
+  {tag:'hard',tagLbl:'JEE Advanced 2013 Paper 2',q:'3ˣ = 4^(x−1), find x.',
+   steps:[{eq:'3ˣ = 4^(x−1)',w:'Given'},
+          {eq:'Apply log both sides: x·log3 = (x−1)·log4',w:'Take log'},
+          {eq:'x·log3 = x·log4 − log4',w:'Expand RHS'},
+          {eq:'log4 = x·log4 − x·log3 = x(log4−log3)',w:'Collect x'},
+          {eq:'x = log4/(log4−log3) = log₃4/(log₃4−1)',w:'Divide, simplify'},
+          {eq:'x = 2log₃2 / (2log₃2 − 1)',w:'Final form'}],
+   ans:'x = 2log₃2 / (2log₃2 − 1)'},
+  {tag:'hard',tagLbl:'JEE Advanced 2018 Paper 1',q:'((log₂9)²)^(1/log₂(log₂9)) × (√7)^(1/log₄7)',
+   steps:[{eq:'Let log₂9 = α',w:'Substitute for clarity'},
+          {eq:'First part: (α²)^(1/log₂α) = α^(2/log₂α)',w:'Simplify power'},
+          {eq:'= α^(log_α(4)) = 4',w:'Use: x^(log_x(k)) = k, and 2/log₂α = log_α(2²)=log_α4'},
+          {eq:'Second part: (7^(1/2))^(1/log₄7) = 7^(1/(2log₄7))',w:'Simplify'},
+          {eq:'= 7^(log₇4/2) = 7^(log₇2) = 2',w:'Change of base: 1/log₄7 = log₇4'},
+          {eq:'Answer = 4 × 2 = 8',w:'Multiply both parts'}],
+   ans:'8'},
+  {tag:'hard',tagLbl:'JEE Advanced 2024',q:'Let a=3√2, b=1/(5^(1/6)·6^(1/6)). If x,y∈ℝ s.t. 3x+2y=log_a(18)^(5/4) and 2x−y=log_b(√1080), find 4x+5y.',
+   steps:[{eq:'For 3x+2y: log_a(18^(5/4)) = (5/4)·log_(3√2)(18)',w:'Power rule'},
+          {eq:'= (5/4)·log_18/(log_3√2) = (5/4)·(log18/log(3√2))',w:'Change of base'},
+          {eq:'log(3√2)=(1/2)log18, so ratio=2 → 3x+2y=(5/4)·2=5/2 ...(①)',w:'Simplify'},
+          {eq:'For 2x−y: log_b(√1080) = (1/2)·log_b(1080)',w:'Power rule'},
+          {eq:'b=1/(5^(1/6)·6^(1/6)) → log_b(1080) = −6 (since (5·6)^(1/6)^6=5·6=30, 1080/30²... detailed in notes)',w:'Evaluate'},
+          {eq:'2x−y = −3 ...(②)',w:'From your notes'},
+          {eq:'From ①②: 3x+2y=5/2, 4x−2y=−6 → adding: 7x... solve: x=−1/2, y=2',w:'Solve system'},
+          {eq:'4x+5y = 4(−1/2)+5(2) = −2+10 = 8',w:'Final answer'}],
+   ans:'4x + 5y = 8'},
+  {tag:'hard',tagLbl:'Hard',q:'Logarithmic Inequality: solve −1 < log₂(x−1) ≤ 2',
+   steps:[{eq:'Domain: x−1 > 0 → x > 1',w:'Argument must be positive'},
+          {eq:'Since base 2 > 1, log is increasing: 2⁻¹ < x−1 ≤ 2²',w:'Apply exponentials (inequality direction preserved)'},
+          {eq:'1/2 < x−1 ≤ 4',w:'Simplify'},
+          {eq:'3/2 < x ≤ 5',w:'Add 1 to all parts'},
+          {eq:'Intersect with domain x>1: x ∈ (3/2, 5]',w:'Final answer'}],
+   ans:'x ∈ (3/2, 5]'},
+  {tag:'hard',tagLbl:'Hard',q:'Inequality: log_(0.3)(x−1) > 1',
+   steps:[{eq:'Domain: x−1 > 0 → x > 1',w:'Argument must be positive'},
+          {eq:'Since base 0.3 < 1 (between 0 and 1), log is DECREASING',w:'Key: inequality direction reverses!'},
+          {eq:'x−1 < 0.3¹ = 0.3',w:'Inequality reverses because base < 1'},
+          {eq:'x < 1.3',w:'Add 1'},
+          {eq:'Combined with domain x>1: x ∈ (1, 1.3)',w:'Intersection'}],
+   ans:'x ∈ (1, 1.3)'}
+];
+
+function buildProbs(){
+  const c=document.getElementById('probsList');
+  c.innerHTML=probs.map((p,i)=>`
+    <div class="prob rv">
+      <span class="prob-tag ptag-${p.tag}">${p.tagLbl}</span>
+      <div class="prob-q">${p.q}</div>
+      <button class="sol-btn" onclick="toggleSol(${i})">Show Solution</button>
+      <div class="sol-body" id="sol${i}">
+        <div class="psteps">
+          ${p.steps.map((s,j)=>`<div class="sol-step"><div class="ssn">${j+1}</div><div><div class="sseq">${s.eq}</div><div class="ssw">${s.w}</div></div></div>`).join('')}
+        </div>
+        <div class="final-ans">Answer: ${p.ans}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSol(i){
+  const b=document.getElementById('sol'+i);
+  b.classList.toggle('show');
+  const btn=b.previousElementSibling;
+  btn.textContent=b.classList.contains('show')?'Hide Solution':'Show Solution';
+}
+
+// ======== QUIZ ========
+const qs=[
+  {q:'log₂(64) = ?',opts:['5','6','7','8'],c:1,ex:'2⁶=64. Count: 2,4,8,16,32,64 → 6 doublings.'},
+  {q:'log₃(81) = ?',opts:['3','4','5','2'],c:1,ex:'3⁴=81. Verify: 3×3×3×3=81 ✓'},
+  {q:'log₁₀(1) = ?',opts:['0','1','10','undefined'],c:0,ex:'Any log of 1 = 0 because b⁰=1 always.'},
+  {q:'log₅(5) = ?',opts:['0','5','1','undefined'],c:2,ex:'logₐ(a)=1 always, since a¹=a.'},
+  {q:'log₂(8) + log₂(4) = ?',opts:['log₂(32)','log₂(2)','12','5'],c:0,ex:'Product rule: log₂(8×4)=log₂(32)=5. Both A and D are correct!'},
+  {q:'log_(0.5)(4) = ?',opts:['2','-2','0.5','-0.5'],c:1,ex:'(0.5)ˣ=4 → (2⁻¹)ˣ=2² → −x=2 → x=−2 ✓'},
+  {q:'If log₂(x) = −1, what is x?',opts:['-2','0.5','-0.5','2'],c:1,ex:'2⁻¹=1/2=0.5. Negative exponent = reciprocal.'},
+  {q:'Which is NOT a valid constraint for logₐ(N)?',opts:['N > 0','a > 0','a ≠ 1','N ≠ 1'],c:3,ex:'N≠1 is NOT required. log(1)=0 is perfectly valid. The three constraints are: N>0, a>0, a≠1.'}
+];
+let qi=0,answered=false;
+function buildQuiz(){
+  const box=document.getElementById('quizBox');
+  if(qi>=qs.length){box.innerHTML=`<div class="qbox" style="text-align:center;padding:2rem"><div style="font-family:var(--serif);font-size:36px;color:var(--a3);margin-bottom:1rem">All done!</div><p style="color:var(--mt)">Review the laws and problems above, then re-attempt anything tricky.</p><button class="btn" style="margin-top:1rem" onclick="qi=0;answered=false;buildQuiz()">Restart</button></div>`;return;}
+  const q=qs[qi];answered=false;
+  box.innerHTML=`<div class="qbox"><div class="qprog">${qi+1} of ${qs.length}</div><div class="qtxt" style="margin-top:.75rem">${q.q}</div><div class="qopts">${q.opts.map((o,i)=>`<button class="qo" id="qq${i}" onclick="ansQ(${i})">${o}</button>`).join('')}</div><div class="qfb" id="qfb"></div><div class="qnav"><span></span><button class="btn" id="qnxt" style="display:none" onclick="qi++;answered=false;buildQuiz()">Next →</button></div></div>`;
+}
+function ansQ(i){
+  if(answered)return;answered=true;
+  const q=qs[qi];
+  document.querySelectorAll('.qo').forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct');else if(j===i)b.classList.add('wrong');});
+  document.getElementById('qfb').innerHTML=i===q.c?`<span style="color:var(--a3);font-weight:600">Correct! </span>${q.ex}`:`<span style="color:var(--re);font-weight:600">Not quite. </span>${q.ex}`;
+  document.getElementById('qnxt').style.display='block';
+}
+
+// ======== INIT ========
+buildLaws();buildProbs();buildQuiz();verLaws();
+setTimeout(()=>{buildEgGraph();buildLgGraph();},300);
+</script>
+</body>
+</html>

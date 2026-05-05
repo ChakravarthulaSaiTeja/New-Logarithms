@@ -464,19 +464,20 @@ footer{padding:2rem;text-align:center;font-size:12px;color:var(--mt);border-top:
   <div class="gsection rv">
     <div class="gpresets">
       <span class="gpreset-lbl" aria-hidden="true">Presets:</span>
-      <button class="gpreset" onclick="setEgPreset(2)" aria-label="Set base to 2">Base 2</button>
-      <button class="gpreset" onclick="setEgPreset(2.718)" aria-label="Set base to e">Base e</button>
-      <button class="gpreset" onclick="setEgPreset(10)" aria-label="Set base to 10">Base 10</button>
-      <button class="gpreset" onclick="setEgPreset(0.5)" aria-label="Set base to 0.5 (decay)">Decay (0.5)</button>
+      <button class="gpreset" onclick="setEgPreset(2)" aria-label="Set base to 2">a = 2</button>
+      <button class="gpreset" onclick="setEgPreset(2.718)" aria-label="Set base to e">a = e</button>
+      <button class="gpreset" onclick="setEgPreset(10)" aria-label="Set base to 10">a = 10</button>
+      <button class="gpreset" onclick="setEgPreset(0.5)" aria-label="Set base to 0.5 (decay)">a = 0.5 (decay)</button>
+      <button class="gpreset" onclick="setEgPreset(0.25)" aria-label="Set base to 0.25">a = 0.25</button>
     </div>
     <div class="gcontrols">
       <div class="srow" style="flex:1;min-width:200px;margin:0">
-        <label for="egBase" style="min-width:50px">Base (a)</label>
-        <input type="range" min="0.1" max="5" value="2" step="0.1" id="egBase" aria-label="Exponential base">
+        <label for="egBase" style="min-width:80px">Base (a)</label>
+        <input type="range" min="0.05" max="5" value="2" step="0.05" id="egBase" aria-label="Exponential base">
         <span class="sval" id="egBaseVal" aria-live="polite">2.0</span>
       </div>
-      <button class="gtog on" id="togEg1" onclick="toggleEg('b1')" aria-pressed="true">a &gt; 1 curve</button>
-      <button class="gtog on2" id="togEg2" onclick="toggleEg('b2')" aria-pressed="true">0 &lt; a &lt; 1 curve</button>
+      <button class="gtog on" id="togEg1" onclick="toggleEg('main')" aria-pressed="true">y = aˣ</button>
+      <button class="gtog on2" id="togEg2" onclick="toggleEg('mirror')" aria-pressed="true">Compare y = (1/a)ˣ</button>
       <button class="gtog on" id="togEgAsym" onclick="toggleEgAsym()" aria-pressed="true" title="Horizontal asymptote y=0">Asymptote</button>
       <button class="gtog" id="togEgKP" onclick="toggleEgKP()" aria-pressed="false" title="Key point (0,1)">Key Point</button>
       <button class="gfbtn" id="egFsBtn" onclick="toggleGraphFullscreen('egWrap','egFsBtn')" aria-label="Toggle fullscreen graph">Fullscreen</button>
@@ -635,21 +636,22 @@ footer{padding:2rem;text-align:center;font-size:12px;color:var(--mt);border-top:
   <div class="gsection rv">
     <div class="gpresets">
       <span class="gpreset-lbl" aria-hidden="true">Presets:</span>
-      <button class="gpreset" onclick="setLgPreset(2)" aria-label="log base 2">log₂</button>
-      <button class="gpreset" onclick="setLgPreset(10)" aria-label="log base 10">log₁₀</button>
-      <button class="gpreset" onclick="setLgPreset(2.718)" aria-label="natural log">ln (e)</button>
-      <button class="gpreset" onclick="setLgPreset(0.5)" aria-label="log base 0.5 (decreasing)">Decreasing</button>
+      <button class="gpreset" onclick="setLgPreset(2)" aria-label="log base 2">log₂  (a=2)</button>
+      <button class="gpreset" onclick="setLgPreset(10)" aria-label="log base 10">log₁₀ (a=10)</button>
+      <button class="gpreset" onclick="setLgPreset(2.718)" aria-label="natural log">ln  (a=e)</button>
+      <button class="gpreset" onclick="setLgPreset(0.5)" aria-label="log base 0.5 decreasing">a = 0.5 (decay)</button>
+      <button class="gpreset" onclick="setLgPreset(0.25)" aria-label="log base 0.25">a = 0.25</button>
     </div>
     <div class="gcontrols">
       <div class="srow" style="flex:1;min-width:180px;margin:0">
-        <label for="lgBase" style="min-width:50px">Base (a)</label>
-        <input type="range" min="1.1" max="8" value="2" step="0.1" id="lgBase" aria-label="Logarithm base">
+        <label for="lgBase" style="min-width:80px">Base (a)</label>
+        <input type="range" min="0.05" max="8" value="2" step="0.05" id="lgBase" aria-label="Logarithm base">
         <span class="sval" id="lgBaseVal" aria-live="polite">2.0</span>
       </div>
-      <button class="gtog on" id="togLg1" onclick="toggleLg('log1')" aria-pressed="true">a &gt; 1</button>
-      <button class="gtog on2" id="togLg2" onclick="toggleLg('log2')" aria-pressed="true">0 &lt; a &lt; 1</button>
-      <button class="gtog on3" id="togLgE" onclick="toggleLg('exp')" aria-pressed="true">bˣ (mirror)</button>
-      <button class="gtog" id="togLgM" onclick="toggleLg('mir')" aria-pressed="false">y = x</button>
+      <button class="gtog on" id="togLg1" onclick="toggleLg('log1')" aria-pressed="true">logₐ(x)</button>
+      <button class="gtog on2" id="togLg2" onclick="toggleLg('log2')" aria-pressed="true">Compare log₁/ₐ(x)</button>
+      <button class="gtog on3" id="togLgE" onclick="toggleLg('exp')" aria-pressed="false">aˣ (exponential)</button>
+      <button class="gtog" id="togLgM" onclick="toggleLg('mir')" aria-pressed="false">y = x line</button>
       <button class="gtog on" id="togLgAsym" onclick="toggleLgAsym()" aria-pressed="true" title="Vertical asymptote x=0">Asymptote</button>
       <button class="gtog" id="togLgKP" onclick="toggleLgKP()" aria-pressed="false" title="Key points (1,0) and (a,1)">Key Points</button>
       <button class="gfbtn" id="lgFsBtn" onclick="toggleGraphFullscreen('lgWrap','lgFsBtn')" aria-label="Toggle fullscreen">Fullscreen</button>

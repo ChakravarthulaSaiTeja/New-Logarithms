@@ -8,11 +8,7 @@ const crosshairPlugin = {
     const evt = args.event;
     if (evt.type === 'mousemove') {
       const { left, right } = chart.chartArea || {};
-      if (left != null && evt.x >= left && evt.x <= right) {
-        chart._crossX = evt.x;
-      } else {
-        chart._crossX = null;
-      }
+      chart._crossX = (left != null && evt.x >= left && evt.x <= right) ? evt.x : null;
     } else if (evt.type === 'mouseout') {
       chart._crossX = null;
     }
@@ -21,7 +17,7 @@ const crosshairPlugin = {
   afterDraw(chart) {
     const x = chart._crossX;
     if (x == null) return;
-    const { ctx, chartArea: { top, bottom, left, right } } = chart;
+    const { ctx, chartArea: { top, bottom } } = chart;
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(x, top);
@@ -32,33 +28,33 @@ const crosshairPlugin = {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
-  }
+  },
 };
 
 const chartState = {
   egChart: null,
   lgChart: null,
-  showEgB1: true,
-  showEgB2: true,
+  showEgMain: true,
+  showEgMirror: true,
   showEgKP: false,
   showEgAsym: true,
   showLg1: true,
   showLg2: true,
-  showLgE: true,
+  showLgE: false,
   showLgM: false,
   showLgKP: false,
   showLgAsym: true,
 };
 
+function safeBase(b) {
+  return b > 0 && Math.abs(b - 1) >= 0.04;
+}
+
 const CHART_OPTS_BASE = {
   responsive: true,
   maintainAspectRatio: false,
   animation: false,
-  interaction: {
-    mode: 'nearest',
-    intersect: false,
-    axis: 'xy',
-  },
+  interaction: { mode: 'nearest', intersect: false, axis: 'xy' },
   plugins: {
     legend: {
       display: true,
@@ -78,7 +74,6 @@ const CHART_OPTS_BASE = {
       bodyColor: '#c7cede',
       padding: { x: 14, y: 10 },
       cornerRadius: 8,
-      caretSize: 5,
       displayColors: true,
       boxWidth: 10,
       boxHeight: 10,
@@ -98,31 +93,31 @@ const AXES_EG = {
     ticks: { color: '#c7cede', maxTicksLimit: 9, font: { size: 12, weight: '600' } },
     grid: { color: 'rgba(255,255,255,0.12)' },
     border: { color: 'rgba(255,255,255,0.45)', width: 1.4 },
-    title: { display: true, text: 'x', color: '#e6ecfa', font: { size: 15, weight: '700' } },
+    title: { display: true, text: 'x  (the exponent / power)', color: '#e6ecfa', font: { size: 13, weight: '600' } },
   },
   y: {
-    min: -2, max: 12,
+    min: -0.5, max: 10,
     ticks: { color: '#c7cede', maxTicksLimit: 9, font: { size: 12, weight: '600' } },
     grid: { color: 'rgba(255,255,255,0.12)' },
     border: { color: 'rgba(255,255,255,0.45)', width: 1.4 },
-    title: { display: true, text: 'y', color: '#e6ecfa', font: { size: 15, weight: '700' } },
+    title: { display: true, text: 'y = aˣ  (the result)', color: '#e6ecfa', font: { size: 13, weight: '600' } },
   },
 };
 
 const AXES_LG = {
   x: {
-    type: 'linear', min: -3, max: 12,
+    type: 'linear', min: -0.5, max: 12,
     ticks: { color: '#c7cede', maxTicksLimit: 8, font: { size: 12, weight: '600' } },
     grid: { color: 'rgba(255,255,255,0.12)' },
     border: { color: 'rgba(255,255,255,0.45)', width: 1.4 },
-    title: { display: true, text: 'x', color: '#e6ecfa', font: { size: 15, weight: '700' } },
+    title: { display: true, text: 'x  (the input)', color: '#e6ecfa', font: { size: 13, weight: '600' } },
   },
   y: {
-    min: -8, max: 8,
+    min: -6, max: 6,
     ticks: { color: '#c7cede', maxTicksLimit: 8, font: { size: 12, weight: '600' } },
     grid: { color: 'rgba(255,255,255,0.12)' },
     border: { color: 'rgba(255,255,255,0.45)', width: 1.4 },
-    title: { display: true, text: 'y', color: '#e6ecfa', font: { size: 15, weight: '700' } },
+    title: { display: true, text: 'y = logₐ(x)  (the exponent)', color: '#e6ecfa', font: { size: 13, weight: '600' } },
   },
 };
 
@@ -155,21 +150,27 @@ export function updateLogEx() {
 
 export function setEgPreset(base) {
   const slider = document.getElementById('egBase');
-  if (slider) { slider.value = base; document.getElementById('egBaseVal').textContent = parseFloat(base).toFixed(1); }
+  if (slider) {
+    slider.value = base;
+    document.getElementById('egBaseVal').textContent = parseFloat(base).toFixed(2);
+  }
   buildEgGraph();
 }
 
 export function setLgPreset(base) {
   const slider = document.getElementById('lgBase');
-  if (slider) { slider.value = base; document.getElementById('lgBaseVal').textContent = parseFloat(base).toFixed(1); }
+  if (slider) {
+    slider.value = base;
+    document.getElementById('lgBaseVal').textContent = parseFloat(base).toFixed(2);
+  }
   buildLgGraph();
 }
 
 export function toggleEg(which) {
-  if (which === 'b1') chartState.showEgB1 = !chartState.showEgB1;
-  else chartState.showEgB2 = !chartState.showEgB2;
-  document.getElementById('togEg1').classList.toggle('on', chartState.showEgB1);
-  document.getElementById('togEg2').classList.toggle('on2', chartState.showEgB2);
+  if (which === 'main') chartState.showEgMain = !chartState.showEgMain;
+  else chartState.showEgMirror = !chartState.showEgMirror;
+  document.getElementById('togEg1').classList.toggle('on', chartState.showEgMain);
+  document.getElementById('togEg2').classList.toggle('on2', chartState.showEgMirror);
   buildEgGraph();
 }
 
@@ -187,68 +188,75 @@ export function toggleEgAsym() {
 
 export function buildEgGraph() {
   if (typeof Chart === 'undefined') return;
-  const b = parseFloat(document.getElementById('egBase').value);
+  const rawB = parseFloat(document.getElementById('egBase').value);
+
+  if (!safeBase(rawB)) {
+    const f = document.getElementById('egFacts');
+    if (f) f.innerHTML = `<div class="gfact" style="color:var(--re)">Base cannot equal 1 — please move the slider away from 1.</div>`;
+    return;
+  }
+
+  const b = rawB;
+  const bMirror = +(1 / b).toFixed(5);
   const datasets = [];
 
-  if (chartState.showEgB1) {
+  if (chartState.showEgMain) {
     const pts = [];
-    for (let x = -5; x <= 5; x += 0.12) {
+    for (let x = -5; x <= 5; x += 0.08) {
       const y = Math.pow(b, x);
-      if (y < 50) pts.push({ x: +x.toFixed(2), y: +y.toFixed(4) });
+      if (isFinite(y) && y >= -0.5 && y <= 20) pts.push({ x: +x.toFixed(2), y: +y.toFixed(5) });
     }
     datasets.push({
-      label: `${b.toFixed(1)}ˣ (a>1)`,
+      label: `y = ${b.toFixed(2)}ˣ`,
       data: pts, showLine: true,
-      borderColor: '#7eb8f7', borderWidth: 2.5,
-      pointRadius: 0, pointHoverRadius: 6,
+      borderColor: '#7eb8f7', borderWidth: 2.8,
+      pointRadius: 0, pointHoverRadius: 7,
       pointHoverBackgroundColor: '#7eb8f7',
-      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 1.5,
-      tension: 0.3, fill: false,
-    });
-  }
-  if (chartState.showEgB2) {
-    const b2 = b > 1 ? 1 / b : b;
-    const pts = [];
-    for (let x = -5; x <= 5; x += 0.12) {
-      const y = Math.pow(b2, x);
-      if (y < 50) pts.push({ x: +x.toFixed(2), y: +y.toFixed(4) });
-    }
-    datasets.push({
-      label: `${b2.toFixed(2)}ˣ (0<a<1)`,
-      data: pts, showLine: true,
-      borderColor: '#7edfa0', borderWidth: 2.5,
-      pointRadius: 0, pointHoverRadius: 6,
-      pointHoverBackgroundColor: '#7edfa0',
-      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 1.5,
-      tension: 0.3, fill: false,
+      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+      tension: 0.25, fill: false,
     });
   }
 
-  datasets.push({ label: 'x-axis', data: [{ x: -5, y: 0 }, { x: 5, y: 0 }], showLine: true, borderColor: 'rgba(235,242,255,0.9)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false });
-  datasets.push({ label: 'y-axis', data: [{ x: 0, y: -2 }, { x: 0, y: 12 }], showLine: true, borderColor: 'rgba(235,242,255,0.9)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false });
+  if (chartState.showEgMirror) {
+    const pts = [];
+    for (let x = -5; x <= 5; x += 0.08) {
+      const y = Math.pow(bMirror, x);
+      if (isFinite(y) && y >= -0.5 && y <= 20) pts.push({ x: +x.toFixed(2), y: +y.toFixed(5) });
+    }
+    datasets.push({
+      label: `y = ${bMirror.toFixed(2)}ˣ`,
+      data: pts, showLine: true,
+      borderColor: '#7edfa0', borderWidth: 2.8,
+      pointRadius: 0, pointHoverRadius: 7,
+      pointHoverBackgroundColor: '#7edfa0',
+      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+      tension: 0.25, fill: false, borderDash: [6, 3],
+    });
+  }
+
+  datasets.push({ label: 'x-axis', data: [{ x: -5, y: 0 }, { x: 5, y: 0 }], showLine: true, borderColor: 'rgba(235,242,255,0.85)', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 0, fill: false });
+  datasets.push({ label: 'y-axis', data: [{ x: 0, y: -0.5 }, { x: 0, y: 10 }], showLine: true, borderColor: 'rgba(235,242,255,0.85)', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 0, fill: false });
 
   if (chartState.showEgAsym) {
-    datasets.push({ label: 'asym', data: [{ x: -5, y: 0 }, { x: 5, y: 0 }], showLine: true, borderColor: 'rgba(240,112,112,0.5)', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [6, 4] });
+    datasets.push({ label: 'asym', data: [{ x: -5, y: 0 }, { x: 5, y: 0 }], showLine: true, borderColor: 'rgba(240,112,112,0.6)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [8, 5] });
   }
   if (chartState.showEgKP) {
-    datasets.push({ label: 'kp', data: [{ x: 0, y: 1 }], showLine: false, borderColor: '#c8a96e', backgroundColor: '#c8a96e', pointRadius: 8, pointHoverRadius: 9 });
+    datasets.push({ label: 'kp', data: [{ x: 0, y: 1 }], showLine: false, borderColor: '#c8a96e', backgroundColor: '#c8a96e', pointRadius: 9, pointHoverRadius: 11 });
   }
 
   const c = document.getElementById('egChart');
   if (chartState.egChart) chartState.egChart.destroy();
-  chartState.egChart = new Chart(c, {
-    type: 'scatter',
-    data: { datasets },
-    options: { ...CHART_OPTS_BASE, scales: AXES_EG },
-  });
+  chartState.egChart = new Chart(c, { type: 'scatter', data: { datasets }, options: { ...CHART_OPTS_BASE, scales: AXES_EG } });
 
+  const isGrowth = b > 1;
   const f = document.getElementById('egFacts');
   if (f) f.innerHTML = `
-    <div class="gfact">Always passes through: <span>(0, 1)</span></div>
-    <div class="gfact">For a&gt;1: <span>Increasing, range (0,∞)</span></div>
-    <div class="gfact">For 0&lt;a&lt;1: <span>Decreasing, range (0,∞)</span></div>
-    <div class="gfact">Horizontal asymptote: <span style="color:var(--re)">y = 0</span></div>
-    <div class="gfact">Domain: <span>ℝ (all real x)</span></div>`;
+    <div class="gfact"><strong>Base a = ${b.toFixed(2)}</strong>: <span style="color:${isGrowth ? 'var(--a3)' : 'var(--a2)'}">${isGrowth ? '▲ Exponential growth (a > 1)' : '▼ Exponential decay (0 < a < 1)'}</span></div>
+    <div class="gfact">Always passes through: <span>(0, 1)</span> &nbsp;→&nbsp; any base raised to power 0 = 1</div>
+    <div class="gfact">Also passes through: <span>(1, ${b.toFixed(2)})</span> &nbsp;→&nbsp; a¹ = a</div>
+    <div class="gfact">Also passes through: <span>(-1, ${bMirror.toFixed(3)})</span> &nbsp;→&nbsp; a⁻¹ = 1/a</div>
+    <div class="gfact">Horizontal asymptote: <span style="color:var(--re)">y = 0</span> (never touches the x-axis)</div>
+    <div class="gfact">Domain: <span>all real x</span> &nbsp;|&nbsp; Range: <span>y > 0 only</span></div>`;
 }
 
 export function toggleLg(which) {
@@ -277,84 +285,100 @@ export function toggleLgAsym() {
 
 export function buildLgGraph() {
   if (typeof Chart === 'undefined') return;
-  const b = parseFloat(document.getElementById('lgBase').value);
-  const lB = Math.log(b);
+  const rawB = parseFloat(document.getElementById('lgBase').value);
+
+  if (!safeBase(rawB)) {
+    const f = document.getElementById('lgFacts');
+    if (f) f.innerHTML = `<div class="gfact" style="color:var(--re)">Base cannot equal 1 — logarithm is undefined at a = 1.</div>`;
+    return;
+  }
+
+  const b = rawB;
+  const lnB = Math.log(b);
+  const bMirror = +(1 / b).toFixed(5);
+  const lnBMirror = Math.log(bMirror);
   const datasets = [];
 
   if (chartState.showLg1) {
     const pts = [];
-    for (let x = 0.04; x <= 12; x += 0.1)
-      pts.push({ x: +x.toFixed(3), y: +(Math.log(x) / lB).toFixed(4) });
-    datasets.push({
-      label: `log${b.toFixed(1)}(x)`,
-      data: pts, showLine: true,
-      borderColor: '#7eb8f7', borderWidth: 2.5,
-      pointRadius: 0, pointHoverRadius: 6,
-      pointHoverBackgroundColor: '#7eb8f7',
-      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 1.5,
-      tension: 0.3, fill: false,
-    });
-  }
-  if (chartState.showLg2) {
-    const lB2 = Math.log(1 / b);
-    const pts = [];
-    for (let x = 0.04; x <= 12; x += 0.1)
-      pts.push({ x: +x.toFixed(3), y: +(Math.log(x) / lB2).toFixed(4) });
-    datasets.push({
-      label: `log₁/₍${b.toFixed(1)}₎(x)`,
-      data: pts, showLine: true,
-      borderColor: '#7edfa0', borderWidth: 2.5,
-      pointRadius: 0, pointHoverRadius: 6,
-      pointHoverBackgroundColor: '#7edfa0',
-      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 1.5,
-      tension: 0.3, fill: false, borderDash: [4, 3],
-    });
-  }
-  if (chartState.showLgE) {
-    const pts = [];
-    for (let x = -3; x <= 5; x += 0.1) {
-      const y = Math.pow(b, x);
-      if (y <= 12) pts.push({ x: +x.toFixed(2), y: +y.toFixed(4) });
+    for (let x = 0.03; x <= 12; x += 0.06) {
+      const y = Math.log(x) / lnB;
+      if (isFinite(y) && y >= -6 && y <= 6) pts.push({ x: +x.toFixed(3), y: +y.toFixed(5) });
     }
     datasets.push({
-      label: `${b.toFixed(1)}ˣ`,
+      label: `log_${b.toFixed(2)}(x)`,
       data: pts, showLine: true,
-      borderColor: '#c8a96e', borderWidth: 1.5,
+      borderColor: '#7eb8f7', borderWidth: 2.8,
+      pointRadius: 0, pointHoverRadius: 7,
+      pointHoverBackgroundColor: '#7eb8f7',
+      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+      tension: 0.25, fill: false,
+    });
+  }
+
+  if (chartState.showLg2) {
+    const pts = [];
+    for (let x = 0.03; x <= 12; x += 0.06) {
+      const y = Math.log(x) / lnBMirror;
+      if (isFinite(y) && y >= -6 && y <= 6) pts.push({ x: +x.toFixed(3), y: +y.toFixed(5) });
+    }
+    datasets.push({
+      label: `log_${bMirror.toFixed(2)}(x)`,
+      data: pts, showLine: true,
+      borderColor: '#7edfa0', borderWidth: 2.8,
+      pointRadius: 0, pointHoverRadius: 7,
+      pointHoverBackgroundColor: '#7edfa0',
+      pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2,
+      tension: 0.25, fill: false, borderDash: [6, 3],
+    });
+  }
+
+  if (chartState.showLgE) {
+    const pts = [];
+    for (let x = -3; x <= 12; x += 0.08) {
+      const y = Math.pow(b, x);
+      if (isFinite(y) && y >= -0.5 && y <= 12) pts.push({ x: +x.toFixed(2), y: +y.toFixed(5) });
+    }
+    datasets.push({
+      label: `y = ${b.toFixed(2)}ˣ`,
+      data: pts, showLine: true,
+      borderColor: '#c8a96e', borderWidth: 1.8,
       pointRadius: 0, pointHoverRadius: 6,
       pointHoverBackgroundColor: '#c8a96e',
       pointHoverBorderColor: '#fff', pointHoverBorderWidth: 1.5,
-      tension: 0.3, fill: false, borderDash: [5, 4],
+      tension: 0.25, fill: false, borderDash: [5, 4],
     });
   }
+
   if (chartState.showLgM) {
-    datasets.push({ label: 'y=x', data: [{ x: -3, y: -3 }, { x: 12, y: 12 }], showLine: true, borderColor: 'rgba(255,255,255,0.15)', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [3, 5] });
+    datasets.push({ label: 'y=x', data: [{ x: -0.5, y: -0.5 }, { x: 6, y: 6 }], showLine: true, borderColor: 'rgba(255,255,255,0.18)', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [3, 5] });
   }
 
-  datasets.push({ label: 'x-axis', data: [{ x: -3, y: 0 }, { x: 12, y: 0 }], showLine: true, borderColor: 'rgba(235,242,255,0.9)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false });
-  datasets.push({ label: 'y-axis', data: [{ x: 0, y: -8 }, { x: 0, y: 8 }], showLine: true, borderColor: 'rgba(235,242,255,0.9)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false });
+  datasets.push({ label: 'x-axis', data: [{ x: -0.5, y: 0 }, { x: 12, y: 0 }], showLine: true, borderColor: 'rgba(235,242,255,0.85)', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 0, fill: false });
+  datasets.push({ label: 'y-axis', data: [{ x: 0, y: -6 }, { x: 0, y: 6 }], showLine: true, borderColor: 'rgba(235,242,255,0.85)', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 0, fill: false });
 
   if (chartState.showLgAsym) {
-    datasets.push({ label: 'asym', data: [{ x: 0.001, y: -8 }, { x: 0.001, y: 8 }], showLine: true, borderColor: 'rgba(240,112,112,0.5)', borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [6, 4] });
+    datasets.push({ label: 'asym', data: [{ x: 0.001, y: -6 }, { x: 0.001, y: 6 }], showLine: true, borderColor: 'rgba(240,112,112,0.6)', borderWidth: 1.8, pointRadius: 0, pointHoverRadius: 0, fill: false, borderDash: [8, 5] });
   }
   if (chartState.showLgKP) {
-    datasets.push({ label: 'kp', data: [{ x: 1, y: 0 }, { x: b, y: 1 }], showLine: false, borderColor: '#c8a96e', backgroundColor: '#c8a96e', pointRadius: 8, pointHoverRadius: 9 });
+    const kpData = [{ x: 1, y: 0 }];
+    if (b > 0.03 && b < 12) kpData.push({ x: b, y: 1 });
+    datasets.push({ label: 'kp', data: kpData, showLine: false, borderColor: '#c8a96e', backgroundColor: '#c8a96e', pointRadius: 9, pointHoverRadius: 11 });
   }
 
   const c = document.getElementById('lgChart');
   if (chartState.lgChart) chartState.lgChart.destroy();
-  chartState.lgChart = new Chart(c, {
-    type: 'scatter',
-    data: { datasets },
-    options: { ...CHART_OPTS_BASE, scales: AXES_LG },
-  });
+  chartState.lgChart = new Chart(c, { type: 'scatter', data: { datasets }, options: { ...CHART_OPTS_BASE, scales: AXES_LG } });
 
+  const isGrowth = b > 1;
   const f = document.getElementById('lgFacts');
   if (f) f.innerHTML = `
-    <div class="gfact">Domain: <span>x &gt; 0 only</span></div>
-    <div class="gfact">Range: <span>all ℝ</span></div>
-    <div class="gfact">Always through: <span>(1, 0)</span></div>
-    <div class="gfact">Vertical asymptote: <span style="color:var(--re)">x = 0</span></div>
-    <div class="gfact">Mirror of exponential: <span>across y = x</span></div>`;
+    <div class="gfact"><strong>Base a = ${b.toFixed(2)}</strong>: <span style="color:${isGrowth ? 'var(--a2)' : 'var(--a3)'}">${isGrowth ? '▲ Increasing log (a > 1)' : '▼ Decreasing log (0 < a < 1)'}</span></div>
+    <div class="gfact">Always passes through: <span>(1, 0)</span> &nbsp;→&nbsp; log of 1 = 0 for any base</div>
+    <div class="gfact">Also passes through: <span>(${b.toFixed(2)}, 1)</span> &nbsp;→&nbsp; logₐ(a) = 1 always</div>
+    <div class="gfact">Vertical asymptote: <span style="color:var(--re)">x = 0</span> (undefined for x ≤ 0)</div>
+    <div class="gfact">Domain: <span>x > 0 only</span> &nbsp;|&nbsp; Range: <span>all real y</span></div>
+    <div class="gfact">Mirror of exponential: <span>y = logₐ(x) is the inverse of y = aˣ</span></div>`;
 }
 
 export async function toggleGraphFullscreen(wrapId, btnId) {
@@ -369,8 +393,16 @@ export async function toggleGraphFullscreen(wrapId, btnId) {
       await el.requestFullscreen();
       if (btn) btn.textContent = 'Exit Fullscreen';
     }
-    setTimeout(() => { chartState.egChart?.resize(); chartState.lgChart?.resize(); }, 120);
+    setTimeout(() => { chartState.egChart?.resize(); chartState.lgChart?.resize(); }, 150);
   } catch (e) { console.error('Fullscreen failed', e); }
+}
+
+function clampBase(rawVal) {
+  let v = parseFloat(rawVal);
+  if (v > 0.94 && v < 1.06) {
+    v = v < 1 ? 0.9 : 1.1;
+  }
+  return v;
 }
 
 export function initChartEvents() {
@@ -387,12 +419,16 @@ export function initChartEvents() {
   mSlider?.addEventListener('input', () => updateMult(+mSlider.value));
   lBase?.addEventListener('input', updateLogEx);
   lPow?.addEventListener('input', updateLogEx);
+
   egBase?.addEventListener('input', () => {
-    document.getElementById('egBaseVal').textContent = parseFloat(egBase.value).toFixed(1);
+    const v = clampBase(egBase.value);
+    document.getElementById('egBaseVal').textContent = v.toFixed(2);
     buildEgGraph();
   });
+
   lgBase?.addEventListener('input', () => {
-    document.getElementById('lgBaseVal').textContent = parseFloat(lgBase.value).toFixed(1);
+    const v = clampBase(lgBase.value);
+    document.getElementById('lgBaseVal').textContent = v.toFixed(2);
     buildLgGraph();
   });
 
